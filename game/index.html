@@ -320,27 +320,49 @@
         const targetHostId = params.get('hostId');
 
         class RemotePlayer {
-            constructor(id, mesh) {
+            constructor(id) {
                 this.id = id;
-                this.mesh = mesh;
-                this.mesh.scale.setScalar(0.002);
-                this.mesh.userData = { isRemotePlayer: true, id: id, root: this.mesh, instance: this };
                 this.hp = 100;
                 this.isAlive = true;
                 
+                // Create a container group
+                this.mesh = new THREE.Group();
+                this.mesh.userData = { isRemotePlayer: true, id: id, root: this.mesh, instance: this };
+                
+                // Add a simple temporary box so they are visible immediately
+                const markerGeo = new THREE.BoxGeometry(0.3, 1.2, 0.3);
+                const markerMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true });
+                this.marker = new THREE.Mesh(markerGeo, markerMat);
+                this.marker.position.set(0, 0.6, 0); 
+                this.mesh.add(this.marker);
+
                 // For interpolation
                 this.targetPos = new THREE.Vector3();
                 this.targetYaw = 0;
                 this.targetPitch = 0;
 
-                this.mesh.traverse(child => {
+                scene.add(this.mesh);
+                // Note: We'll add to shootables/collidables once we have a real mesh or just use the marker
+                shootables.push(this.marker);
+                this.marker.userData.root = this.mesh;
+            }
+
+            setModel(model) {
+                // Remove marker
+                this.mesh.remove(this.marker);
+                shootables.splice(shootables.indexOf(this.marker), 1);
+
+                this.model = model;
+                this.model.scale.setScalar(0.002);
+                this.mesh.add(this.model);
+
+                this.model.traverse(child => {
                     if (child.isMesh) {
                         child.userData.root = this.mesh;
                         collidables.push(child);
+                        shootables.push(child);
                     }
                 });
-                scene.add(this.mesh);
-                shootables.push(this.mesh);
             }
 
             updateState(state) {
@@ -437,12 +459,35 @@
         }
 
         function setupConnection(conn) {
+            console.log('Setting up connection with:', conn.peer);
+            
+            // Check for existing connection to this peer to avoid duplicates
+            const existing = connections.find(c => c.peer === conn.peer);
+            if (existing) {
+                console.log('Closing duplicate connection to:', conn.peer);
+                existing.close();
+                connections = connections.filter(c => c !== existing);
+            }
+
             connections.push(conn);
             
+            // For Host: send own ID immediately to let the client know who we are
+            if (isHost) {
+                // Wait a tiny bit for the data channel to be ready on the other side
+                setTimeout(() => {
+                    if (conn.open) {
+                        console.log('HOST SENDING INIT TO:', conn.peer);
+                        conn.send({ type: 'init', id: peer.id });
+                    }
+                }, 500);
+            }
+
             conn.on('open', () => {
-                console.log('Connected to:', conn.peer);
-                // Send initial join message
-                conn.send({ type: 'join', id: peer.id });
+                console.log('Connection OPEN with:', conn.peer);
+                if (!isHost) {
+                    console.log('CLIENT SENDING JOIN TO:', conn.peer);
+                    conn.send({ type: 'join', id: peer.id });
+                }
             });
 
             conn.on('data', data => {
@@ -450,25 +495,42 @@
             });
 
             conn.on('close', () => {
+                console.log('Connection CLOSED with:', conn.peer);
                 removePlayer(conn.peer);
                 connections = connections.filter(c => c !== conn);
+            });
+
+            conn.on('error', err => {
+                console.error('Connection ERROR with:', conn.peer, err);
             });
         }
 
         function handleNetworkMessage(data, conn) {
+            console.log('NET RECV from', conn.peer, ':', data.type, data);
+            const senderId = data.id || conn.peer;
+
             switch(data.type) {
+                case 'init':
+                    // Client receives this from Host
+                    console.log('RECEIVED INIT FROM HOST:', senderId);
+                    createRemotePlayer(senderId);
+                    // Reply with join
+                    conn.send({ type: 'join', id: peer.id });
+                    break;
+
                 case 'join':
+                    console.log('RECEIVED JOIN FROM:', senderId);
                     if (isHost) {
                         // Broadcast new player to others
-                        broadcast({ type: 'playerJoined', id: data.id }, conn);
+                        broadcast({ type: 'playerJoined', id: senderId }, conn);
                         // Tell new player about existing players
                         remotePlayers.forEach((p, id) => {
-                            conn.send({ type: 'playerJoined', id: id });
+                            if (p instanceof RemotePlayer) {
+                                conn.send({ type: 'playerJoined', id: id });
+                            }
                         });
-                        // IMPORTANT: Tell new player about ME (the host)
-                        conn.send({ type: 'playerJoined', id: peer.id });
                     }
-                    createRemotePlayer(data.id);
+                    createRemotePlayer(senderId);
                     break;
                 
                 case 'update':
@@ -526,21 +588,24 @@
         }
 
         function createRemotePlayer(id) {
+            console.log('CREATING REMOTE PLAYER:', id);
             if (!id || id === peer.id) return;
             if (remotePlayers.has(id)) return;
             
-            // Placeholder to prevent duplicate loading
-            remotePlayers.set(id, { loading: true });
+            // Create player immediately with box
+            const p = new RemotePlayer(id);
+            remotePlayers.set(id, p);
             
+            console.log('LOADING MODEL ASYNCHRONOUSLY FOR:', id);
             loader.load('../terrorist.glb', gltf => {
-                const p = new RemotePlayer(id, gltf.scene);
-                remotePlayers.set(id, p);
-                console.log('Player joined:', id);
+                console.log('MODEL LOADED FOR:', id);
+                p.setModel(gltf.scene);
             }, undefined, err => {
-                console.error('Model Load Error:', err);
-                remotePlayers.delete(id);
+                console.error('Model Load Error for', id, ':', err);
+                // Keep the box marker if model fails
             });
         }
+        window.remotePlayers = remotePlayers; // For console debugging
 
         function removePlayer(id) {
             const p = remotePlayers.get(id);
@@ -829,8 +894,14 @@
                 
                 // Debug
                 const p = camera.position;
-                const activePlayers = Array.from(remotePlayers.values()).filter(rp => rp instanceof RemotePlayer);
-                const playerInfo = activePlayers.map(rp => `PLAYER: ${rp.id.substring(0,6)} ${rp.isAlive ? rp.hp + 'hp' : 'DEAD'} @ ${rp.mesh.position.x.toFixed(1)},${rp.mesh.position.z.toFixed(1)}`).join('<br>');
+                const playerIds = Array.from(remotePlayers.keys());
+                const playerInfo = playerIds.map(id => {
+                    const rp = remotePlayers.get(id);
+                    const status = (rp instanceof RemotePlayer) ? (rp.isAlive ? rp.hp + 'hp' : 'DEAD') : 'LOADING...';
+                    const pos = (rp instanceof RemotePlayer) ? `${rp.mesh.position.x.toFixed(1)},${rp.mesh.position.z.toFixed(1)}` : '?.?';
+                    return `PLAYER: ${id.substring(0,6)} [${status}] @ ${pos}`;
+                }).join('<br>');
+                
                 dbg.innerHTML =
                     'LOCKED: ' + locked + '<br>' +
                     'MODE: ' + (isHost ? 'HOST' : 'CLIENT') + '<br>' +
