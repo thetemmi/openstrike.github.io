@@ -192,8 +192,8 @@
         const FLOOR_Y = 0.842;
         let canJump = true;
 
-        const MAX_SPEED_GROUND = 0.018;
-        const MAX_SPEED_AIR = 0.002;
+        const MAX_SPEED_GROUND = 0.010;
+        const MAX_SPEED_AIR = 0.0015;
         const ACCEL_GROUND = 0.15;
         const ACCEL_AIR = 0.3;
         const FRICTION = 0.15;
@@ -269,12 +269,35 @@
             }
         }
 
-        // ─── WEAPON (AK-47 viewmodel) ───────────────────────────────
-        let weaponModel = null;
+        // ─── WEAPONS SYSTEM ─────────────────────────────────────────
+        const weapons = {
+            1: { key: 1, id: 'ak47', name: 'AK-47', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
+            2: { key: 2, id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.001, pos: new THREE.Vector3(0.015, -0.02, -0.035), rot: new THREE.Euler(0, Math.PI / 2, 0), model: null },
+            3: { key: 3, id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.01, pos: new THREE.Vector3(0.02, -0.02, -0.04), rot: new THREE.Euler(0, Math.PI / 2 + 0.5, 0), model: null }
+        };
+        let currentWeaponKey = 1;
+
         let bobTimer = 0;
         let swayX = 0, swayY = 0;
         let reloadOffsetY = 0, reloadRotX = 0; // Procedural animation offsets
-        const weaponRestPos = new THREE.Vector3(0.015, -0.015, -0.040); // Adjusted for FOV 40
+
+        function updateWeaponUI() {
+            const w = weapons[currentWeaponKey];
+            document.querySelector('.ammo .label').textContent = w.name;
+            if (w.isMelee) {
+                document.getElementById('ammo-value').textContent = '- / -';
+            } else {
+                document.getElementById('ammo-value').textContent = w.ammo + ' / ' + w.reserve;
+            }
+        }
+
+        function switchWeapon(key) {
+            if (isReloading || !weapons[key] || !weapons[key].model || key === currentWeaponKey) return;
+            weapons[currentWeaponKey].model.visible = false;
+            currentWeaponKey = key;
+            weapons[currentWeaponKey].model.visible = true;
+            updateWeaponUI();
+        }
 
         // ─── LOAD ASSETS ────────────────────────────────────────────
         const dracoLoader = new DRACOLoader();
@@ -284,16 +307,21 @@
 
         dbg.textContent = 'LOADING MAP...';
 
-        // Load AK-47
-        loader.load('../ak47.glb', gltf => {
-            weaponModel = gltf.scene;
-            weaponModel.scale.setScalar(0.005);
-            weaponModel.position.copy(weaponRestPos);
-            // Model naturally points right (X). Rotate 90deg (PI/2) to point forward (-Z), plus a bit inwards.
-            weaponModel.rotation.set(0.05, (Math.PI / 2) + 0.15, 0.1);
-            uiScene.add(weaponModel);
-            dbg.textContent = 'AK47 LOADED';
-        }, undefined, err => { dbg.textContent = 'AK47 ERROR: ' + err.message; });
+        // Load Weapons
+        let loadedWeapons = 0;
+        Object.values(weapons).forEach(w => {
+            loader.load(w.file, gltf => {
+                w.model = gltf.scene;
+                w.model.scale.setScalar(w.scale);
+                w.model.position.copy(w.pos);
+                w.model.rotation.copy(w.rot);
+                w.model.visible = (w.key === currentWeaponKey);
+                uiScene.add(w.model);
+                loadedWeapons++;
+                if (loadedWeapons === 3) dbg.textContent = 'ALL WEAPONS LOADED';
+                if (w.key === currentWeaponKey) updateWeaponUI();
+            }, undefined, err => { dbg.textContent = w.name + ' ERROR: ' + err.message; });
+        });
 
         // Load Map
         loader.load('../map.glb', gltf => {
@@ -650,20 +678,22 @@
 
 
         // ─── SHOOTING & RELOADING ───────────────────────────────────
-        let ammo = 30, reserve = 90;
         let isShooting = false;
         let isReloading = false;
         let lastShootTime = 0;
-        const FIRE_RATE = 100; // milliseconds between shots (600 RPM)
         
         window.addEventListener('keydown', e => { 
             keys[e.code] = true; 
             if (e.code === 'KeyR' && locked) reloadWeapon();
+            if (e.code === 'Digit1' && locked) switchWeapon(1);
+            if (e.code === 'Digit2' && locked) switchWeapon(2);
+            if (e.code === 'Digit3' && locked) switchWeapon(3);
         });
 
         document.addEventListener('mousedown', e => {
             if (!locked || e.button !== 0) return;
-            if (ammo <= 0 && !isReloading) reloadWeapon();
+            const w = weapons[currentWeaponKey];
+            if (!w.isMelee && w.ammo <= 0 && !isReloading) reloadWeapon();
             else isShooting = true;
         });
 
@@ -672,7 +702,8 @@
         });
 
         function reloadWeapon() {
-            if (isReloading || ammo === 30 || reserve === 0) return;
+            const w = weapons[currentWeaponKey];
+            if (isReloading || w.isMelee || w.ammo === w.maxAmmo || w.reserve === 0) return;
             isReloading = true;
             isShooting = false;
             
@@ -702,11 +733,12 @@
                     reloadOffsetY = 0;
                     reloadRotX = 0;
                     
-                    const needed = 30 - ammo;
-                    const take = Math.min(needed, reserve);
-                    ammo += take;
-                    reserve -= take;
-                    document.getElementById('ammo-value').textContent = ammo + ' / ' + reserve;
+                    const w = weapons[currentWeaponKey];
+                    const needed = w.maxAmmo - w.ammo;
+                    const take = Math.min(needed, w.reserve);
+                    w.ammo += take;
+                    w.reserve -= take;
+                    updateWeaponUI();
                     isReloading = false;
                 }
             }
@@ -813,38 +845,56 @@
 
                 // Shooting
                 const now = performance.now();
-                if (isShooting && !isReloading && now - lastShootTime > FIRE_RATE) {
-                    if (ammo > 0) {
-                        ammo--;
-                        document.getElementById('ammo-value').textContent = ammo + ' / ' + reserve;
+                const w = weapons[currentWeaponKey];
+                
+                // If it's not full-auto (USP), we only allow one shot per mousedown
+                // Let's implement full auto only for AK for simplicity, or semi auto for USP by checking a flag.
+                // For now, let's keep all weapons full-auto if mouse is held, or limit it.
+                // Knives also "shoot" to hit.
+                if (isShooting && !isReloading && now - lastShootTime > w.fireRate) {
+                    if (w.isMelee || w.ammo > 0) {
+                        if (!w.isMelee) {
+                            w.ammo--;
+                            updateWeaponUI();
+                        }
                         lastShootTime = now;
                         
                         // Weapon recoil kick
-                        if (weaponModel) {
-                            weaponModel.position.z += 0.005; // Kick back toward camera
-                            weaponModel.position.y += 0.001; // Kick up slightly
+                        if (w.model) {
+                            w.model.position.z += 0.005; // Kick back toward camera
+                            w.model.position.y += 0.001; // Kick up slightly
                             
                             // Return animation
                             setTimeout(() => { 
-                                if (weaponModel) {
-                                    weaponModel.position.z -= 0.005;
-                                    weaponModel.position.y -= 0.001;
+                                if (w.model) {
+                                    w.model.position.z -= 0.005;
+                                    w.model.position.y -= 0.001;
                                 }
                             }, 50);
                         }
                         
-                        // Camera recoil
-                        pitch += 0.015; // Kick camera up
-                        yaw += (Math.random() - 0.5) * 0.01; // Random horizontal kick
+                        // Camera recoil (less for USP/Knife)
+                        if (!w.isMelee) {
+                            pitch += 0.015 * (w.id === 'usp' ? 0.5 : 1); 
+                            yaw += (Math.random() - 0.5) * 0.01 * (w.id === 'usp' ? 0.5 : 1);
+                        }
                         
                         // Hit registration
                         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                        // Limit range for knife
                         const intersects = raycaster.intersectObjects(shootables, true);
                         if (intersects.length > 0) {
-                            const hitRoot = intersects[0].object.userData.root;
-                            if (hitRoot && hitRoot.userData.isRemotePlayer) {
-                                hitRoot.userData.instance.takeDamage(20);
+                            if (!w.isMelee || intersects[0].distance < 1.5) {
+                                const hitRoot = intersects[0].object.userData.root;
+                                if (hitRoot && hitRoot.userData.isRemotePlayer) {
+                                    hitRoot.userData.instance.takeDamage(w.damage);
+                                }
                             }
+                        }
+                        
+                        // For semi-auto (USP) prevent holding
+                        if (w.id === 'usp' || w.id === 'knife') {
+                            isShooting = false; 
                         }
                     }
                 }
@@ -852,7 +902,8 @@
 
                 // Weapon sway and bob
                 const isMoving = keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'];
-                if (weaponModel) {
+                const wModel = weapons[currentWeaponKey].model;
+                if (wModel) {
                     // Sway logic (weapon lags behind camera movement)
                     swayX += mouseDX * 0.00005;
                     swayY += mouseDY * 0.00005;
@@ -862,8 +913,11 @@
                     swayX *= 0.8; // Return to center
                     swayY *= 0.8;
 
-                    let targetX = weaponRestPos.x - swayX;
-                    let targetY = weaponRestPos.y + swayY;
+                    const wPos = weapons[currentWeaponKey].pos;
+                    const wRot = weapons[currentWeaponKey].rot;
+
+                    let targetX = wPos.x - swayX;
+                    let targetY = wPos.y + swayY;
 
                     if (isMoving) {
                         bobTimer += 0.15;
@@ -873,11 +927,11 @@
                         bobTimer = 0;
                     }
                     
-                    weaponModel.position.x += (targetX - weaponModel.position.x) * 0.2;
-                    weaponModel.position.y += ((targetY + reloadOffsetY) - weaponModel.position.y) * 0.2;
+                    wModel.position.x += (targetX - wModel.position.x) * 0.2;
+                    wModel.position.y += ((targetY + reloadOffsetY) - wModel.position.y) * 0.2;
                     
                     // Apply base rotation + reload procedural rotation
-                    weaponModel.rotation.set(0.05 + reloadRotX, (Math.PI / 2) + 0.15, 0.1);
+                    wModel.rotation.set(wRot.x + reloadRotX, wRot.y, wRot.z);
                 }
 
                 // Update remote players
