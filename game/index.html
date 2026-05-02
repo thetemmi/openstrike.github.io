@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,53 +8,378 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Roboto+Mono&display=swap');
-        :root { --primary: #00f2ff; --bg-glass: rgba(10, 20, 30, 0.7); --border: rgba(0, 242, 255, 0.3); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { overflow: hidden; background: #000; }
-        #game-container { width: 100vw; height: 100vh; position: relative; }
-        #game-canvas { display: block; }
+
+        :root {
+            --primary: #00f2ff;
+            --bg-glass: rgba(10, 20, 30, 0.7);
+            --border: rgba(0, 242, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #game-canvas {
+            display: block;
+        }
 
         /* Crosshair & Hitmarker */
-        #crosshair { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; pointer-events: none; z-index: 10; display: none; }
-        #crosshair .dot { position: absolute; top: 50%; left: 50%; width: 2px; height: 2px; background: var(--primary); border-radius: 50%; transform: translate(-50%, -50%); }
-        #crosshair .line { position: absolute; background: var(--primary); opacity: 0.8; }
-        #crosshair .top, #crosshair .bottom { width: 2px; height: 6px; left: 50%; transform: translateX(-50%); }
-        #crosshair .left, #crosshair .right { width: 6px; height: 2px; top: 50%; transform: translateY(-50%); }
-        #crosshair .top { top: -8px; } #crosshair .bottom { bottom: -8px; }
-        #crosshair .left { left: -8px; } #crosshair .right { right: -8px; }
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+        }
 
-        #hitmarker { position: fixed; top: 50%; left: 50%; width: 24px; height: 24px; pointer-events: none; transform: translate(-50%, -50%) rotate(45deg); display: none; opacity: 0; transition: opacity 0.05s; z-index: 15; }
-        #hitmarker .line { position: absolute; background: #fff; box-shadow: 0 0 5px #f00; }
-        #hitmarker .line1 { top: 0; left: 11px; width: 2px; height: 6px; }
-        #hitmarker .line2 { bottom: 0; left: 11px; width: 2px; height: 6px; }
-        #hitmarker .line3 { top: 11px; left: 0; width: 6px; height: 2px; }
-        #hitmarker .line4 { top: 11px; right: 0; width: 6px; height: 2px; }
+        #crosshair .dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #crosshair .line {
+            position: absolute;
+            background: var(--primary);
+            opacity: 0.8;
+        }
+
+        #crosshair .top,
+        #crosshair .bottom {
+            width: 2px;
+            height: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #crosshair .left,
+        #crosshair .right {
+            width: 6px;
+            height: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #crosshair .top {
+            top: -8px;
+        }
+
+        #crosshair .bottom {
+            bottom: -8px;
+        }
+
+        #crosshair .left {
+            left: -8px;
+        }
+
+        #crosshair .right {
+            right: -8px;
+        }
+
+        #hitmarker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            transform: translate(-50%, -50%) rotate(45deg);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.05s;
+            z-index: 15;
+        }
+
+        #hitmarker .line {
+            position: absolute;
+            background: #fff;
+            box-shadow: 0 0 5px #f00;
+        }
+
+        #hitmarker .line1 {
+            top: 0;
+            left: 11px;
+            width: 2px;
+            height: 6px;
+        }
+
+        #hitmarker .line2 {
+            bottom: 0;
+            left: 11px;
+            width: 2px;
+            height: 6px;
+        }
+
+        #hitmarker .line3 {
+            top: 11px;
+            left: 0;
+            width: 6px;
+            height: 2px;
+        }
+
+        #hitmarker .line4 {
+            top: 11px;
+            right: 0;
+            width: 6px;
+            height: 2px;
+        }
 
         /* HUD */
-        #hud { position: fixed; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; pointer-events: none; z-index: 20; }
-        .hud-panel { background: var(--bg-glass); backdrop-filter: blur(10px); border-left: 4px solid var(--primary); padding: 15px 25px; color: #fff; }
-        .hud-panel .label { font-size: 12px; letter-spacing: 2px; color: var(--primary); margin-bottom: 5px; }
-        .hud-panel .value { font-family: 'Roboto Mono', monospace; font-size: 32px; font-weight: 700; }
-        .health .bar-container { width: 200px; height: 4px; background: rgba(255,255,255,0.1); margin-top: 10px; }
-        .health .bar { width: 100%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        #hud {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .hud-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--primary);
+            padding: 15px 25px;
+            color: #fff;
+        }
+
+        .hud-panel .label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .hud-panel .value {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .health .bar-container {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .health .bar {
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
 
         /* Blocker */
-        #blocker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 100; cursor: pointer; }
-        #instructions { text-align: center; color: #fff; padding: 40px; border: 1px solid var(--border); background: rgba(0,242,255,0.05); transition: background 0.3s; }
-        #instructions:hover { background: rgba(0,242,255,0.1); }
-        #instructions h1 { font-size: 48px; letter-spacing: 10px; margin-bottom: 20px; color: var(--primary); text-shadow: 0 0 20px var(--primary); }
-        #instructions p { font-size: 20px; margin-bottom: 10px; }
-        #instructions .controls { margin-top: 30px; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 2; }
+        #blocker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        #instructions {
+            text-align: center;
+            color: #fff;
+            padding: 40px;
+            border: 1px solid var(--border);
+            background: rgba(0, 242, 255, 0.05);
+            transition: background 0.3s;
+        }
+
+        #instructions:hover {
+            background: rgba(0, 242, 255, 0.1);
+        }
+
+        #instructions h1 {
+            font-size: 48px;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        #instructions p {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #instructions .controls {
+            margin-top: 30px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 2;
+        }
 
         /* Loading */
-        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; color: var(--primary); }
-        .loader { width: 50px; height: 50px; border: 3px solid rgba(0,242,255,0.1); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: var(--primary);
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 242, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Debug */
-        #debug { position: fixed; top: 10px; left: 10px; color: #0f0; background: rgba(0,0,0,0.7); padding: 8px; font-family: monospace; font-size: 12px; z-index: 9999; pointer-events: none; }
+        #debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: #0f0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Buy Menu */
+        #buy-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 40px;
+            display: none;
+            z-index: 500;
+        }
+
+        #buy-menu h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 5px;
+        }
+
+        .buy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .buy-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .buy-item:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .buy-item .name {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .buy-item .type {
+            font-size: 10px;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        /* Scope */
+        #scope-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            z-index: 5;
+            background: radial-gradient(circle, transparent 30%, black 70%);
+        }
+
+        #scope-cross {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+        }
+
+        #scope-cross-v {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+        }
     </style>
 </head>
+
 <body>
     <div id="game-container">
         <canvas id="game-canvas"></canvas>
@@ -77,15 +403,19 @@
             <div class="hud-panel health">
                 <div class="label">HEALTH</div>
                 <div class="value" id="hp-value">100</div>
-                <div class="bar-container"><div class="bar" id="hp-bar"></div></div>
+                <div class="bar-container">
+                    <div class="bar" id="hp-bar"></div>
+                </div>
             </div>
             <div class="hud-panel ammo">
                 <div class="label">AK-47</div>
                 <div class="value" id="ammo-value">30 / 90</div>
             </div>
-            <div id="room-id-panel" style="position: fixed; top: 20px; right: 20px; background: var(--bg-glass); border-right: 4px solid var(--primary); padding: 10px 20px; color: #fff; text-align: right; pointer-events: auto; display: none;">
+            <div id="room-id-panel"
+                style="position: fixed; top: 20px; right: 20px; background: var(--bg-glass); border-right: 4px solid var(--primary); padding: 10px 20px; color: #fff; text-align: right; pointer-events: auto; display: none;">
                 <div style="font-size: 10px; color: var(--primary); letter-spacing: 1px;">LOBBY ID</div>
-                <div id="room-id-value" style="font-family: 'Roboto Mono', monospace; font-size: 18px; cursor: pointer;">GENERATING...</div>
+                <div id="room-id-value"
+                    style="font-family: 'Roboto Mono', monospace; font-size: 18px; cursor: pointer;">GENERATING...</div>
             </div>
         </div>
 
@@ -97,6 +427,7 @@
                     (W, A, S, D) - MOVE<br>
                     (SPACE) - JUMP<br>
                     (SHIFT) - CROUCH<br>
+                    (B) - BUY MENU<br>
                     (MOUSE) - LOOK &amp; SHOOT<br>
                     (ESC) - PAUSE
                 </div>
@@ -107,6 +438,40 @@
             <div class="loader"></div>
             <p>LOADING SECTOR...</p>
         </div>
+
+        <div id="buy-menu">
+            <h2>EQUIPMENT TERMINAL</h2>
+            <div class="buy-grid">
+                <div class="buy-item" onclick="buyWeapon('ak47')">
+                    <div class="name">AK-47</div>
+                    <div class="type">RIFLE</div>
+                </div>
+                <div class="buy-item" onclick="buyWeapon('m4a4')">
+                    <div class="name">M4A4</div>
+                    <div class="type">RIFLE</div>
+                </div>
+                <div class="buy-item" onclick="buyWeapon('awp')">
+                    <div class="name">AWP</div>
+                    <div class="type">SNIPER</div>
+                </div>
+                <div class="buy-item" onclick="buyWeapon('usp')">
+                    <div class="name">USP-S</div>
+                    <div class="type">PISTOL</div>
+                </div>
+                <div class="buy-item" onclick="buyWeapon('deagle')">
+                    <div class="name">DEAGLE</div>
+                    <div class="type">PISTOL</div>
+                </div>
+                <div class="buy-item" onclick="buyWeapon('knife')">
+                    <div class="name">KNIFE</div>
+                    <div class="type">MELEE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="scope-overlay"></div>
+        <div id="scope-cross"></div>
+        <div id="scope-cross-v"></div>
     </div>
 
     <div id="debug">INIT...</div>
@@ -143,7 +508,7 @@
         // ─── VIEWMODEL SCENE (Custom FOV) ───────────────────────────
         const uiScene = new THREE.Scene();
         const uiCamera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.001, 100);
-        
+
         uiScene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const uiSun = new THREE.DirectionalLight(0xffffff, 1.5);
         uiSun.position.set(50, 100, 50);
@@ -173,7 +538,7 @@
         // ─── INPUT ──────────────────────────────────────────────────
         const keys = {};
         window.addEventListener('keydown', e => { keys[e.code] = true; });
-        window.addEventListener('keyup',   e => { keys[e.code] = false; });
+        window.addEventListener('keyup', e => { keys[e.code] = false; });
 
         let mouseDX = 0, mouseDY = 0;
         document.addEventListener('mousemove', e => {
@@ -189,7 +554,7 @@
         // ─── PHYSICS & RAYCASTING (Source Engine Style) ──────────────
         const velocity = new THREE.Vector3();
         const GRAVITY = 0.001;
-        const JUMP_FORCE = 0.020; 
+        const JUMP_FORCE = 0.020;
         const FLOOR_Y = 0.842;
         let canJump = true;
         let isDead = false;
@@ -211,10 +576,10 @@
             const currentSpeed = velocity.dot(wishDir);
             const addSpeed = wishSpeed - currentSpeed;
             if (addSpeed <= 0) return;
-            
+
             let accelSpeed = accel * wishSpeed;
             if (accelSpeed > addSpeed) accelSpeed = addSpeed;
-            
+
             velocity.addScaledVector(wishDir, accelSpeed);
         }
 
@@ -237,7 +602,7 @@
             playerHealth -= amount;
             document.getElementById('hp-value').textContent = playerHealth;
             document.getElementById('hp-bar').style.width = Math.max(0, playerHealth) + '%';
-            
+
             // Visual damage flash
             const flash = document.createElement('div');
             flash.style.position = 'fixed';
@@ -256,7 +621,7 @@
                 isDead = true;
                 document.getElementById('hp-value').textContent = 0;
                 sendNetworkData({ type: 'die', id: peer.id });
-                
+
                 // Death Overlay
                 const deathScreen = document.createElement('div');
                 deathScreen.id = 'death-overlay';
@@ -278,7 +643,7 @@
                     if (camera.position.y > 0.2) camera.position.y -= 0.05;
                     else clearInterval(floorTween);
                 }, 16);
-                
+
                 // Respawn logic
                 setTimeout(() => {
                     isDead = false;
@@ -290,7 +655,7 @@
                     document.getElementById('hp-bar').style.width = '100%';
                     camera.position.set(-17.498, 0.842, 3.014); // original spawn
                     yaw = 0; pitch = 0;
-                    
+
                     // Refill current weapon ammo
                     const w = weapons[currentWeaponKey];
                     if (!w.isMelee) {
@@ -299,7 +664,7 @@
                     }
                     updateWeaponUI();
                     isReloading = false;
-                    
+
                     sendNetworkData({ type: 'respawn', id: peer.id, state: { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: yaw, pitch: pitch, hp: 100 } });
                 }, 3000);
             }
@@ -307,15 +672,22 @@
 
         // ─── WEAPONS SYSTEM ─────────────────────────────────────────
         const weapons = {
-            1: { key: 1, id: 'ak47', name: 'AK-47', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
-            2: { key: 2, id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
-            3: { key: 3, id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
+            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
+            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.025, pos: new THREE.Vector3(0.0210, -0.0160, -0.0320), rot: new THREE.Euler(0.05, 3.38, 0.10), model: null },
+            'awp': { key: 'awp', id: 'awp', name: 'AWP', ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
+            'usp': { key: 'usp', id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
+            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
+            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
         };
-        let currentWeaponKey = 1;
+        let currentWeaponKey = 'ak47';
+        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
+        let activeSlot = 'primary'; // 'primary', 'secondary', 'melee'
 
         let bobTimer = 0;
         let swayX = 0, swayY = 0;
         let reloadOffsetY = 0, reloadRotX = 0; // Procedural animation offsets
+        let isScoped = false;
+        let buyMenuOpen = false;
 
         function updateWeaponUI() {
             const w = weapons[currentWeaponKey];
@@ -329,11 +701,72 @@
 
         function switchWeapon(key) {
             if (isReloading || !weapons[key] || !weapons[key].model || key === currentWeaponKey) return;
+
+            // Reset scope if switching
+            if (isScoped) toggleScope();
+
             weapons[currentWeaponKey].model.visible = false;
             currentWeaponKey = key;
             weapons[currentWeaponKey].model.visible = true;
             updateWeaponUI();
         }
+
+        function buyWeapon(id) {
+            const w = weapons[id];
+            if (!w) return;
+
+            // Determine slot
+            let slot = 'primary';
+            if (id === 'usp' || id === 'deagle') slot = 'secondary';
+            if (id === 'knife') slot = 'melee';
+
+            inventory[slot] = id;
+            if (activeSlot === slot) {
+                switchWeapon(id);
+            }
+
+            // Close menu
+            toggleBuyMenu();
+        }
+
+        function toggleBuyMenu() {
+            buyMenuOpen = !buyMenuOpen;
+            document.getElementById('buy-menu').style.display = buyMenuOpen ? 'block' : 'none';
+            if (buyMenuOpen) {
+                document.exitPointerLock();
+            } else {
+                canvas.requestPointerLock();
+            }
+        }
+
+        function toggleScope() {
+            const w = weapons[currentWeaponKey];
+            if (!w.hasScope) return;
+
+            isScoped = !isScoped;
+            const overlay = document.getElementById('scope-overlay');
+            const crossH = document.getElementById('scope-cross');
+            const crossV = document.getElementById('scope-cross-v');
+
+            if (isScoped) {
+                camera.fov = 20;
+                w.model.visible = false;
+                overlay.style.display = 'block';
+                crossH.style.display = 'block';
+                crossV.style.display = 'block';
+                crosshair.style.display = 'none';
+            } else {
+                camera.fov = 75;
+                w.model.visible = true;
+                overlay.style.display = 'none';
+                crossH.style.display = 'none';
+                crossV.style.display = 'none';
+                crosshair.style.display = 'block';
+            }
+            camera.updateProjectionMatrix();
+        }
+
+        window.buyWeapon = buyWeapon; // Expose to HTML
 
         // ─── LOAD ASSETS ────────────────────────────────────────────
         const dracoLoader = new DRACOLoader();
@@ -344,7 +777,8 @@
         dbg.textContent = 'LOADING MAP...';
 
         // Load Weapons
-        let loadedWeapons = 0;
+        let loadedWeaponsCount = 0;
+        const totalWeaponsCount = Object.keys(weapons).length;
         Object.values(weapons).forEach(w => {
             loader.load(w.file, gltf => {
                 w.model = gltf.scene;
@@ -353,8 +787,8 @@
                 w.model.rotation.copy(w.rot);
                 w.model.visible = (w.key === currentWeaponKey);
                 uiScene.add(w.model);
-                loadedWeapons++;
-                if (loadedWeapons === 3) dbg.textContent = 'ALL WEAPONS LOADED';
+                loadedWeaponsCount++;
+                if (loadedWeaponsCount === totalWeaponsCount) dbg.textContent = 'ALL WEAPONS LOADED';
                 if (w.key === currentWeaponKey) updateWeaponUI();
             }, undefined, err => { dbg.textContent = w.name + ' ERROR: ' + err.message; });
         });
@@ -378,7 +812,7 @@
         let peer = null;
         let connections = []; // For Host: list of all clients. For Client: single connection to host.
         let isHost = false;
-        
+
         const params = new URLSearchParams(window.location.search);
         const mode = params.get('mode');
         const targetHostId = params.get('hostId');
@@ -388,16 +822,16 @@
                 this.id = id;
                 this.hp = 100;
                 this.isAlive = true;
-                
+
                 // Create a container group
                 this.mesh = new THREE.Group();
                 this.mesh.userData = { isRemotePlayer: true, id: id, root: this.mesh, instance: this };
-                
+
                 // Add a simple temporary box so they are visible immediately
                 const markerGeo = new THREE.BoxGeometry(0.3, 1.2, 0.3);
                 const markerMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, wireframe: true });
                 this.marker = new THREE.Mesh(markerGeo, markerMat);
-                this.marker.position.set(0, 0.6, 0); 
+                this.marker.position.set(0, 0.6, 0);
                 this.mesh.add(this.marker);
 
                 // For interpolation
@@ -465,7 +899,7 @@
                     this.mesh.position.y -= 0.005;
                     if (deathRot > Math.PI / 2) clearInterval(fallInt);
                 }, 16);
-                
+
                 // Remove from collidables
                 for (let i = collidables.length - 1; i >= 0; i--) {
                     if (collidables[i].userData.root === this.mesh) {
@@ -480,7 +914,7 @@
                 this.mesh.rotation.x = 0;
                 this.updateState(state);
                 this.mesh.position.copy(this.targetPos);
-                
+
                 // Re-add to collidables
                 this.mesh.traverse(child => {
                     if (child.isMesh && !collidables.includes(child)) {
@@ -526,7 +960,7 @@
 
         function setupConnection(conn) {
             console.log('Setting up connection with:', conn.peer);
-            
+
             // Check for existing connection to this peer to avoid duplicates
             const existing = connections.find(c => c.peer === conn.peer);
             if (existing) {
@@ -536,7 +970,7 @@
             }
 
             connections.push(conn);
-            
+
             // For Host: send own ID immediately to let the client know who we are
             if (isHost) {
                 // Wait a tiny bit for the data channel to be ready on the other side
@@ -575,7 +1009,7 @@
             console.log('NET RECV from', conn.peer, ':', data.type, data);
             const senderId = data.id || conn.peer;
 
-            switch(data.type) {
+            switch (data.type) {
                 case 'init':
                     // Client receives this from Host
                     console.log('RECEIVED INIT FROM HOST:', senderId);
@@ -598,7 +1032,7 @@
                     }
                     createRemotePlayer(senderId);
                     break;
-                
+
                 case 'update':
                     if (isHost) {
                         // Relay to all other clients
@@ -644,11 +1078,11 @@
             console.log('CREATING REMOTE PLAYER:', id);
             if (!id || id === peer.id) return;
             if (remotePlayers.has(id)) return;
-            
+
             // Create player immediately with box
             const p = new RemotePlayer(id);
             remotePlayers.set(id, p);
-            
+
             console.log('LOADING MODEL ASYNCHRONOUSLY FOR:', id);
             loader.load('../terrorist.glb', gltf => {
                 console.log('MODEL LOADED FOR:', id);
@@ -672,7 +1106,7 @@
 
         function processHit(targetId, damage) {
             if (!isHost) return;
-            
+
             if (targetId === peer.id) {
                 damagePlayer(damage);
             } else {
@@ -680,10 +1114,10 @@
                 if (target && target instanceof RemotePlayer) {
                     target.hp -= damage;
                     console.log(`Player ${targetId} hit! HP: ${target.hp}`);
-                    
+
                     // Command the target client to take damage locally
                     broadcast({ type: 'hit', targetId: targetId, damage: damage });
-                    
+
                     if (target.hp <= 0) {
                         broadcast({ type: 'die', id: targetId });
                         target.die();
@@ -717,22 +1151,72 @@
         let isShooting = false;
         let isReloading = false;
         let lastShootTime = 0;
-        
-        window.addEventListener('keydown', e => { 
+
+        window.addEventListener('keydown', e => {
             if (isDead) return;
-            keys[e.code] = true; 
+
+            // Weapon Debug Mode (only if locked)
+            if (locked && !buyMenuOpen) {
+                const w = weapons[currentWeaponKey];
+                if (w && w.model) {
+                    const step = e.shiftKey ? 0.005 : 0.001; // Faster with Shift
+                    const rotStep = 0.05;
+
+                    // Position: Arrows + EQ
+                    if (e.code === 'ArrowUp') w.pos.y += step;
+                    if (e.code === 'ArrowDown') w.pos.y -= step;
+                    if (e.code === 'ArrowLeft') w.pos.x -= step;
+                    if (e.code === 'ArrowRight') w.pos.x += step;
+                    if (e.code === 'KeyQ') w.pos.z += step;
+                    if (e.code === 'KeyE') w.pos.z -= step;
+
+                    // Rotation: ZX
+                    if (e.code === 'KeyZ') w.rot.y += rotStep;
+                    if (e.code === 'KeyX') w.rot.y -= rotStep;
+
+                    // Scale: P/L (added for convenience)
+                    if (e.code === 'KeyP') w.scale *= 1.1;
+                    if (e.code === 'KeyL') w.scale *= 0.9;
+
+                    w.model.position.copy(w.pos);
+                    w.model.rotation.copy(w.rot);
+                    w.model.scale.setScalar(w.scale);
+
+                    window.lastWeaponDebug = `${w.id} | pos: ${w.pos.x.toFixed(4)}, ${w.pos.y.toFixed(4)}, ${w.pos.z.toFixed(4)} | rot: ${w.rot.x.toFixed(2)}, ${w.rot.y.toFixed(2)}, ${w.rot.z.toFixed(2)} | scale: ${w.scale.toFixed(6)}`;
+                    console.log(window.lastWeaponDebug);
+                }
+            }
+
+            if (e.code === 'KeyB' && locked) {
+                toggleBuyMenu();
+                return;
+            }
+
+            if (buyMenuOpen) return;
+
+            keys[e.code] = true;
             if (e.code === 'KeyR' && locked) reloadWeapon();
-            if (e.code === 'Digit1' && locked) switchWeapon(1);
-            if (e.code === 'Digit2' && locked) switchWeapon(2);
-            if (e.code === 'Digit3' && locked) switchWeapon(3);
+            if (e.code === 'Digit1' && locked) { activeSlot = 'primary'; switchWeapon(inventory.primary); }
+            if (e.code === 'Digit2' && locked) { activeSlot = 'secondary'; switchWeapon(inventory.secondary); }
+            if (e.code === 'Digit3' && locked) { activeSlot = 'melee'; switchWeapon(inventory.melee); }
         });
 
         document.addEventListener('mousedown', e => {
-            if (!locked || e.button !== 0 || isDead) return;
-            const w = weapons[currentWeaponKey];
-            if (!w.isMelee && w.ammo <= 0 && !isReloading) reloadWeapon();
-            else isShooting = true;
+            if (!locked || isDead || buyMenuOpen) return;
+
+            if (e.button === 2) {
+                toggleScope();
+                return;
+            }
+
+            if (e.button === 0) {
+                const w = weapons[currentWeaponKey];
+                if (!w.isMelee && w.ammo <= 0 && !isReloading) reloadWeapon();
+                else isShooting = true;
+            }
         });
+
+        window.addEventListener('contextmenu', e => e.preventDefault());
 
         document.addEventListener('mouseup', e => {
             if (e.button === 0) isShooting = false;
@@ -743,12 +1227,12 @@
             if (isReloading || w.isMelee || w.ammo === w.maxAmmo || w.reserve === 0) return;
             isReloading = true;
             isShooting = false;
-            
+
             let startTime = performance.now();
-            
+
             function animateReload() {
                 const elapsed = performance.now() - startTime;
-                
+
                 if (elapsed < 400) {
                     // Dip down off screen
                     reloadOffsetY = -(elapsed / 400) * 0.03;
@@ -769,7 +1253,7 @@
                     // Finish reload
                     reloadOffsetY = 0;
                     reloadRotX = 0;
-                    
+
                     const w = weapons[currentWeaponKey];
                     const needed = w.maxAmmo - w.ammo;
                     const take = Math.min(needed, w.reserve);
@@ -792,9 +1276,8 @@
             lastTime = now;
             const timeScale = dt * 60; // Normalized multiplier (1.0 at 60fps)
 
-            if (locked && !isDead) {
-                // Mouse look
-                yaw   -= mouseDX * SENSITIVITY;
+            if (locked && !isDead && !buyMenuOpen) {
+                yaw -= mouseDX * SENSITIVITY;
                 pitch -= mouseDY * SENSITIVITY;
                 pitch = Math.max(-1.2, Math.min(1.2, pitch));
                 mouseDX = 0;
@@ -806,7 +1289,7 @@
 
                 // Movement Vectors
                 const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-                const right   = new THREE.Vector3( Math.cos(yaw), 0, -Math.sin(yaw));
+                const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
 
                 const wishDir = new THREE.Vector3();
                 if (keys['KeyW']) wishDir.add(forward);
@@ -835,35 +1318,35 @@
                 }
 
                 // Jump
-                if (keys['Space'] && canJump) { 
-                    velocity.y = JUMP_FORCE; 
-                    canJump = false; 
+                if (keys['Space'] && canJump) {
+                    velocity.y = JUMP_FORCE;
+                    canJump = false;
                 }
 
                 // Gravity
                 velocity.y -= GRAVITY * timeScale;
-                
+
                 // Collision detection helper
                 function canMove(dirVec) {
                     if (dirVec.lengthSq() < 0.000001) return true;
-                    
+
                     const dir = dirVec.clone().normalize();
                     const radius = 0.08;
-                    
+
                     // Ray at knee height
                     const low = camera.position.clone();
                     low.y = 0.74;
                     raycaster.set(low, dir);
                     let hit = raycaster.intersectObjects(mapCollidables, false);
                     if (hit.length > 0 && hit[0].distance < radius) return false;
-                    
+
                     // Ray at chest height
                     const high = camera.position.clone();
                     high.y = 0.82;
                     raycaster.set(high, dir);
                     hit = raycaster.intersectObjects(mapCollidables, false);
                     if (hit.length > 0 && hit[0].distance < radius) return false;
-                    
+
                     return true;
                 }
 
@@ -889,7 +1372,7 @@
                 // Shooting
                 const now = performance.now();
                 const w = weapons[currentWeaponKey];
-                
+
                 // If it's not full-auto (USP), we only allow one shot per mousedown
                 // Let's implement full auto only for AK for simplicity, or semi auto for USP by checking a flag.
                 // For now, let's keep all weapons full-auto if mouse is held, or limit it.
@@ -901,27 +1384,27 @@
                             updateWeaponUI();
                         }
                         lastShootTime = now;
-                        
+
                         // Weapon recoil kick
                         if (w.model) {
                             w.model.position.z += 0.005; // Kick back toward camera
                             w.model.position.y += 0.001; // Kick up slightly
-                            
+
                             // Return animation
-                            setTimeout(() => { 
+                            setTimeout(() => {
                                 if (w.model) {
                                     w.model.position.z -= 0.005;
                                     w.model.position.y -= 0.001;
                                 }
                             }, 50);
                         }
-                        
+
                         // Camera recoil (less for USP/Knife)
                         if (!w.isMelee) {
-                            pitch += 0.015 * (w.id === 'usp' ? 0.5 : 1); 
+                            pitch += 0.015 * (w.id === 'usp' ? 0.5 : 1);
                             yaw += (Math.random() - 0.5) * 0.01 * (w.id === 'usp' ? 0.5 : 1);
                         }
-                        
+
                         // Hit registration
                         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
                         // Limit range for knife
@@ -931,12 +1414,12 @@
                                 const hitRoot = intersects[0].object.userData.root;
                                 if (hitRoot && hitRoot.userData.isRemotePlayer) {
                                     let actualDamage = w.damage;
-                                    
+
                                     // Headshot Detection (Models are ~1.7 units tall)
                                     const hitY = intersects[0].point.y;
                                     const playerY = hitRoot.position.y;
                                     const relativeY = hitY - playerY;
-                                    
+
                                     if (relativeY > 1.35) {
                                         actualDamage = 150; // Guaranteed one-shot
                                         console.log("HEADSHOT!");
@@ -947,10 +1430,21 @@
                                 }
                             }
                         }
-                        
-                        // For semi-auto (USP) prevent holding
-                        if (w.id === 'usp' || w.id === 'knife') {
-                            isShooting = false; 
+
+                        // For semi-auto (USP, AWP) prevent holding
+                        if (w.id === 'usp' || w.id === 'knife' || w.id === 'awp') {
+                            isShooting = false;
+                        }
+
+                        // AWP Bolt Action / Auto-Rescope
+                        if (w.id === 'awp' && isScoped) {
+                            toggleScope(); // Unscope after shot
+                            setTimeout(() => {
+                                // Auto-rescope if we still have the AWP out and aren't reloading
+                                if (currentWeaponKey === 'awp' && !isReloading && !isScoped && !buyMenuOpen) {
+                                    toggleScope();
+                                }
+                            }, 800);
                         }
                     }
                 }
@@ -965,7 +1459,7 @@
                     swayY += mouseDY * 0.00005;
                     swayX = Math.max(-0.005, Math.min(0.005, swayX));
                     swayY = Math.max(-0.005, Math.min(0.005, swayY));
-                    
+
                     swayX *= 0.8; // Return to center
                     swayY *= 0.8;
 
@@ -982,10 +1476,10 @@
                     } else {
                         bobTimer = 0;
                     }
-                    
+
                     wModel.position.x += (targetX - wModel.position.x) * 0.2;
                     wModel.position.y += ((targetY + reloadOffsetY) - wModel.position.y) * 0.2;
-                    
+
                     // Apply base rotation + reload procedural rotation
                     wModel.rotation.set(wRot.x + reloadRotX, wRot.y, wRot.z);
                 }
@@ -1014,7 +1508,7 @@
                     }
                     window.lastNetUpdate = now;
                 }
-                
+
                 // Debug
                 const p = camera.position;
                 const playerIds = Array.from(remotePlayers.keys());
@@ -1022,21 +1516,22 @@
                     const rp = remotePlayers.get(id);
                     const status = (rp instanceof RemotePlayer) ? (rp.isAlive ? rp.hp + 'hp' : 'DEAD') : 'LOADING...';
                     const pos = (rp instanceof RemotePlayer) ? `${rp.mesh.position.x.toFixed(1)},${rp.mesh.position.z.toFixed(1)}` : '?.?';
-                    return `PLAYER: ${id.substring(0,6)} [${status}] @ ${pos}`;
+                    return `PLAYER: ${id.substring(0, 6)} [${status}] @ ${pos}`;
                 }).join('<br>');
-                
+
                 dbg.innerHTML =
                     'LOCKED: ' + locked + '<br>' +
                     'MODE: ' + (isHost ? 'HOST' : 'CLIENT') + '<br>' +
                     'PEER ID: ' + (peer ? peer.id : '...') + '<br>' +
                     'CONNS: ' + connections.length + '<br>' +
                     'POS: ' + p.x.toFixed(2) + ', ' + p.y.toFixed(2) + ', ' + p.z.toFixed(2) + '<br>' +
+                    (window.lastWeaponDebug ? '<span style="color:#ff0">W_DEBUG: ' + window.lastWeaponDebug + '</span><br>' : '') +
                     (playerInfo || 'NO OTHER PLAYERS');
             }
 
             renderer.clear();
             renderer.render(scene, camera);
-            
+
             renderer.clearDepth(); // Draw weapon ON TOP of walls
             renderer.render(uiScene, uiCamera);
         }
@@ -1051,5 +1546,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>
