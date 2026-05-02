@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Roboto+Mono&display=swap');
+
+:root {
+    --primary: #00f2ff;
+    --secondary: #ff0055;
+    --bg-glass: rgba(10, 20, 30, 0.7);
+    --border: rgba(0, 242, 255, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    overflow: hidden;
+    background-color: #000;
+}
+
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+#game-canvas {
+    display: block;
+}
+
+/* Crosshair */
+#crosshair {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#crosshair .dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#crosshair .line {
+    position: absolute;
+    background: var(--primary);
+    opacity: 0.8;
+}
+
+#crosshair .top, #crosshair .bottom { width: 2px; height: 6px; left: 50%; transform: translateX(-50%); }
+#crosshair .left, #crosshair .right { width: 6px; height: 2px; top: 50%; transform: translateY(-50%); }
+
+#crosshair .top { top: -8px; }
+#crosshair .bottom { bottom: -8px; }
+#crosshair .left { left: -8px; }
+#crosshair .right { right: -8px; }
+
+/* HUD */
+#hud {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    right: 30px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.hud-panel {
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    border-left: 4px solid var(--primary);
+    padding: 15px 25px;
+    color: #fff;
+}
+
+.hud-panel .label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.hud-panel .value {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.health .bar-container {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+}
+
+.health .bar {
+    width: 100%;
+    height: 100%;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+}
+
+/* Blocker */
+#blocker {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#instructions {
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    padding: 40px;
+    border: 1px solid var(--border);
+    background: rgba(0, 242, 255, 0.05);
+    transition: background 0.3s;
+}
+
+#instructions:hover {
+    background: rgba(0, 242, 255, 0.1);
+}
+
+#instructions h1 {
+    font-size: 48px;
+    letter-spacing: 10px;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-shadow: 0 0 20px var(--primary);
+}
+
+#instructions .controls {
+    margin-top: 30px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 2;
+}
+
+/* Loading */
+#loading-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    color: var(--primary);
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 242, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
