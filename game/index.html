@@ -547,6 +547,9 @@
                 case 'hit':
                     if (isHost) {
                         processHit(data.targetId, data.damage);
+                    } else if (data.targetId === peer.id) {
+                        // The Host validated a hit on us!
+                        damagePlayer(data.damage);
                     }
                     break;
 
@@ -613,6 +616,10 @@
                 if (target && target instanceof RemotePlayer) {
                     target.hp -= damage;
                     console.log(`Player ${targetId} hit! HP: ${target.hp}`);
+                    
+                    // Command the target client to take damage locally
+                    broadcast({ type: 'hit', targetId: targetId, damage: damage });
+                    
                     if (target.hp <= 0) {
                         broadcast({ type: 'die', id: targetId });
                         target.die();
