@@ -418,6 +418,7 @@
                         setTimeout(() => idVal.textContent = id, 1000);
                     };
                 } else if (mode === 'join' && targetHostId) {
+                    dbg.textContent = 'CONNECTING TO HOST...';
                     const conn = peer.connect(targetHostId);
                     setupConnection(conn);
                 }
@@ -427,6 +428,11 @@
                 if (isHost) {
                     setupConnection(conn);
                 }
+            });
+
+            peer.on('error', err => {
+                console.error('PeerJS Error:', err);
+                dbg.innerHTML += `<br><span style="color:red">ERR: ${err.type}</span>`;
             });
         }
 
@@ -459,6 +465,8 @@
                         remotePlayers.forEach((p, id) => {
                             conn.send({ type: 'playerJoined', id: id });
                         });
+                        // IMPORTANT: Tell new player about ME (the host)
+                        conn.send({ type: 'playerJoined', id: peer.id });
                     }
                     createRemotePlayer(data.id);
                     break;
@@ -469,7 +477,7 @@
                         broadcast({ type: 'update', id: data.id, state: data.state }, conn);
                     }
                     const p = remotePlayers.get(data.id);
-                    if (p) p.updateState(data.state);
+                    if (p && p instanceof RemotePlayer) p.updateState(data.state);
                     break;
 
                 case 'hit':
@@ -518,11 +526,19 @@
         }
 
         function createRemotePlayer(id) {
+            if (!id || id === peer.id) return;
             if (remotePlayers.has(id)) return;
+            
+            // Placeholder to prevent duplicate loading
+            remotePlayers.set(id, { loading: true });
+            
             loader.load('../terrorist.glb', gltf => {
                 const p = new RemotePlayer(id, gltf.scene);
                 remotePlayers.set(id, p);
                 console.log('Player joined:', id);
+            }, undefined, err => {
+                console.error('Model Load Error:', err);
+                remotePlayers.delete(id);
             });
         }
 
@@ -787,32 +803,39 @@
                 }
 
                 // Update remote players
-                remotePlayers.forEach(p => p.update(now));
+                remotePlayers.forEach(p => {
+                    if (p instanceof RemotePlayer) p.update(now);
+                });
 
                 // Send network update for local player (every frame or throttle?)
                 // Throttling to ~30fps for network sanity
                 if (!window.lastNetUpdate || now - window.lastNetUpdate > 33) {
-                    sendNetworkData({
-                        type: 'update',
-                        id: peer.id,
-                        state: {
-                            x: camera.position.x,
-                            y: camera.position.y,
-                            z: camera.position.z,
-                            yaw: yaw,
-                            pitch: pitch,
-                            hp: playerHealth
-                        }
-                    });
+                    if (peer && peer.id) {
+                        sendNetworkData({
+                            type: 'update',
+                            id: peer.id,
+                            state: {
+                                x: camera.position.x,
+                                y: camera.position.y,
+                                z: camera.position.z,
+                                yaw: yaw,
+                                pitch: pitch,
+                                hp: playerHealth
+                            }
+                        });
+                    }
                     window.lastNetUpdate = now;
                 }
                 
                 // Debug
                 const p = camera.position;
-                const playerInfo = Array.from(remotePlayers.values()).map(rp => `PLAYER: ${rp.id.substring(0,6)} ${rp.isAlive ? rp.hp + 'hp' : 'DEAD'} @ ${rp.mesh.position.x.toFixed(1)},${rp.mesh.position.z.toFixed(1)}`).join('<br>');
+                const activePlayers = Array.from(remotePlayers.values()).filter(rp => rp instanceof RemotePlayer);
+                const playerInfo = activePlayers.map(rp => `PLAYER: ${rp.id.substring(0,6)} ${rp.isAlive ? rp.hp + 'hp' : 'DEAD'} @ ${rp.mesh.position.x.toFixed(1)},${rp.mesh.position.z.toFixed(1)}`).join('<br>');
                 dbg.innerHTML =
                     'LOCKED: ' + locked + '<br>' +
                     'MODE: ' + (isHost ? 'HOST' : 'CLIENT') + '<br>' +
+                    'PEER ID: ' + (peer ? peer.id : '...') + '<br>' +
+                    'CONNS: ' + connections.length + '<br>' +
                     'POS: ' + p.x.toFixed(2) + ', ' + p.y.toFixed(2) + ', ' + p.z.toFixed(2) + '<br>' +
                     (playerInfo || 'NO OTHER PLAYERS');
             }
