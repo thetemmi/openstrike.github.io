@@ -96,6 +96,7 @@
                 <div class="controls">
                     (W, A, S, D) - MOVE<br>
                     (SPACE) - JUMP<br>
+                    (SHIFT) - CROUCH<br>
                     (MOUSE) - LOOK &amp; SHOOT<br>
                     (ESC) - PAUSE
                 </div>
@@ -815,7 +816,7 @@
                 if (wishDir.lengthSq() > 0) wishDir.normalize();
 
                 // Crouch
-                isCrouching = !!keys['ControlLeft'] || !!keys['ControlRight'];
+                isCrouching = !!keys['ShiftLeft'] || !!keys['ShiftRight'];
                 const targetFloorY = isCrouching ? CROUCH_Y : STAND_Y;
                 currentFloorY += (targetFloorY - currentFloorY) * 0.15;
 
