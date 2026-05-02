@@ -188,9 +188,11 @@
         // ─── PHYSICS & RAYCASTING (Source Engine Style) ──────────────
         const velocity = new THREE.Vector3();
         const GRAVITY = 0.001;
-        const JUMP_FORCE = 0.020; // Reduced jump height further
+        const JUMP_FORCE = 0.020; 
         const FLOOR_Y = 0.842;
         let canJump = true;
+        let isDead = false;
+        let lastTime = performance.now();
 
         const MAX_SPEED_GROUND = 0.010;
         const MAX_SPEED_AIR = 0.0015;
@@ -230,7 +232,7 @@
         // ─── PLAYER HEALTH ──────────────────────────────────────────
         let playerHealth = 100;
         function damagePlayer(amount) {
-            if (playerHealth <= 0) return;
+            if (playerHealth <= 0 || isDead) return;
             playerHealth -= amount;
             document.getElementById('hp-value').textContent = playerHealth;
             document.getElementById('hp-bar').style.width = Math.max(0, playerHealth) + '%';
@@ -250,22 +252,55 @@
 
             if (playerHealth <= 0) {
                 playerHealth = 0;
+                isDead = true;
                 document.getElementById('hp-value').textContent = 0;
                 sendNetworkData({ type: 'die', id: peer.id });
                 
+                // Death Overlay
+                const deathScreen = document.createElement('div');
+                deathScreen.id = 'death-overlay';
+                deathScreen.style.position = 'fixed';
+                deathScreen.style.top = '0'; deathScreen.style.left = '0';
+                deathScreen.style.width = '100%'; deathScreen.style.height = '100%';
+                deathScreen.style.background = 'rgba(150, 0, 0, 0.5)';
+                deathScreen.style.display = 'flex';
+                deathScreen.style.flexDirection = 'column';
+                deathScreen.style.justifyContent = 'center';
+                deathScreen.style.alignItems = 'center';
+                deathScreen.style.color = '#fff';
+                deathScreen.style.zIndex = '1000';
+                deathScreen.innerHTML = '<h1 style="font-size: 64px; margin-bottom: 20px;">WASTED</h1><p style="font-size: 24px;">RESPAWNING IN 3 SECONDS...</p>';
+                document.body.appendChild(deathScreen);
+
+                // Drop camera to floor
+                const floorTween = setInterval(() => {
+                    if (camera.position.y > 0.2) camera.position.y -= 0.05;
+                    else clearInterval(floorTween);
+                }, 16);
+                
                 // Respawn logic
                 setTimeout(() => {
+                    isDead = false;
+                    const overlay = document.getElementById('death-overlay');
+                    if (overlay) overlay.remove();
+
                     playerHealth = 100;
                     document.getElementById('hp-value').textContent = 100;
                     document.getElementById('hp-bar').style.width = '100%';
                     camera.position.set(-17.498, 0.842, 3.014); // original spawn
                     yaw = 0; pitch = 0;
-                    ammo = 30; reserve = 90;
-                    document.getElementById('ammo-value').textContent = ammo + ' / ' + reserve;
+                    
+                    // Refill current weapon ammo
+                    const w = weapons[currentWeaponKey];
+                    if (!w.isMelee) {
+                        w.ammo = w.maxAmmo;
+                        w.reserve = (w.id === 'ak47') ? 90 : 48;
+                    }
+                    updateWeaponUI();
                     isReloading = false;
                     
                     sendNetworkData({ type: 'respawn', id: peer.id, state: { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: yaw, pitch: pitch, hp: 100 } });
-                }, 2000);
+                }, 3000);
             }
         }
 
@@ -411,12 +446,12 @@
                 }
             }
 
-            update(now) {
+            update(now, timeScale) {
                 if (!this.isAlive) return;
-                // Simple interpolation
-                this.mesh.position.lerp(this.targetPos, 0.2);
+                // Framerate-independent interpolation
+                const lerpFactor = 1 - Math.pow(1 - 0.2, timeScale);
+                this.mesh.position.lerp(this.targetPos, lerpFactor);
                 this.mesh.rotation.y = this.targetYaw;
-                // Note: We don't rotate the whole mesh for pitch, maybe just head/arms later.
             }
 
             die() {
@@ -683,6 +718,7 @@
         let lastShootTime = 0;
         
         window.addEventListener('keydown', e => { 
+            if (isDead) return;
             keys[e.code] = true; 
             if (e.code === 'KeyR' && locked) reloadWeapon();
             if (e.code === 'Digit1' && locked) switchWeapon(1);
@@ -691,7 +727,7 @@
         });
 
         document.addEventListener('mousedown', e => {
-            if (!locked || e.button !== 0) return;
+            if (!locked || e.button !== 0 || isDead) return;
             const w = weapons[currentWeaponKey];
             if (!w.isMelee && w.ammo <= 0 && !isReloading) reloadWeapon();
             else isShooting = true;
@@ -749,7 +785,13 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if (locked) {
+            const now = performance.now();
+            let dt = (now - lastTime) / 1000;
+            if (dt > 0.1) dt = 0.1; // Cap dt to avoid huge physics jumps
+            lastTime = now;
+            const timeScale = dt * 60; // Normalized multiplier (1.0 at 60fps)
+
+            if (locked && !isDead) {
                 // Mouse look
                 yaw   -= mouseDX * SENSITIVITY;
                 pitch -= mouseDY * SENSITIVITY;
@@ -779,16 +821,16 @@
 
                 // Friction
                 if (canJump) {
-                    velocity.x *= (1 - FRICTION);
-                    velocity.z *= (1 - FRICTION);
+                    velocity.x *= Math.pow(1 - FRICTION, timeScale);
+                    velocity.z *= Math.pow(1 - FRICTION, timeScale);
                 }
 
                 // Acceleration (slower when crouching)
                 const groundSpeed = isCrouching ? MAX_SPEED_GROUND * 0.5 : MAX_SPEED_GROUND;
                 if (canJump) {
-                    accelerate(wishDir, groundSpeed, ACCEL_GROUND);
+                    accelerate(wishDir, groundSpeed, ACCEL_GROUND * timeScale);
                 } else {
-                    accelerate(wishDir, MAX_SPEED_AIR, ACCEL_AIR);
+                    accelerate(wishDir, MAX_SPEED_AIR, ACCEL_AIR * timeScale);
                 }
 
                 // Jump
@@ -798,7 +840,7 @@
                 }
 
                 // Gravity
-                velocity.y -= GRAVITY;
+                velocity.y -= GRAVITY * timeScale;
                 
                 // Collision detection helper
                 function canMove(dirVec) {
@@ -826,17 +868,17 @@
 
                 // Apply movement with sliding collision
                 if (velocity.x !== 0) {
-                    const dirX = new THREE.Vector3(velocity.x, 0, 0);
-                    if (canMove(dirX)) camera.position.x += velocity.x;
+                    const dirX = new THREE.Vector3(velocity.x * timeScale, 0, 0);
+                    if (canMove(dirX)) camera.position.x += velocity.x * timeScale;
                     else velocity.x = 0;
                 }
                 if (velocity.z !== 0) {
-                    const dirZ = new THREE.Vector3(0, 0, velocity.z);
-                    if (canMove(dirZ)) camera.position.z += velocity.z;
+                    const dirZ = new THREE.Vector3(0, 0, velocity.z * timeScale);
+                    if (canMove(dirZ)) camera.position.z += velocity.z * timeScale;
                     else velocity.z = 0;
                 }
 
-                camera.position.y += velocity.y;
+                camera.position.y += velocity.y * timeScale;
                 if (camera.position.y <= currentFloorY) {
                     camera.position.y = currentFloorY;
                     velocity.y = 0;
@@ -887,7 +929,20 @@
                             if (!w.isMelee || intersects[0].distance < 1.5) {
                                 const hitRoot = intersects[0].object.userData.root;
                                 if (hitRoot && hitRoot.userData.isRemotePlayer) {
-                                    hitRoot.userData.instance.takeDamage(w.damage);
+                                    let actualDamage = w.damage;
+                                    
+                                    // Headshot Detection (Models are ~1.7 units tall)
+                                    const hitY = intersects[0].point.y;
+                                    const playerY = hitRoot.position.y;
+                                    const relativeY = hitY - playerY;
+                                    
+                                    if (relativeY > 1.35) {
+                                        actualDamage *= 2.5; // 250% Headshot multiplier
+                                        console.log("HEADSHOT!");
+                                        // Visual feedback for headshot could go here
+                                    }
+
+                                    hitRoot.userData.instance.takeDamage(actualDamage);
                                 }
                             }
                         }
@@ -920,7 +975,7 @@
                     let targetY = wPos.y + swayY;
 
                     if (isMoving) {
-                        bobTimer += 0.15;
+                        bobTimer += 0.15 * timeScale;
                         targetY += Math.sin(bobTimer) * 0.0015;
                         targetX += Math.cos(bobTimer * 0.5) * 0.001;
                     } else {
@@ -936,7 +991,7 @@
 
                 // Update remote players
                 remotePlayers.forEach(p => {
-                    if (p instanceof RemotePlayer) p.update(now);
+                    if (p instanceof RemotePlayer) p.update(now, timeScale);
                 });
 
                 // Send network update for local player (every frame or throttle?)
