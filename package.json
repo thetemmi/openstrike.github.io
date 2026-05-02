@@ -1,0 +1,12 @@
+{
+  "name": "open-strike-menu",
+  "version": "1.0.0",
+  "description": "3D Menu for OPEN-STRIKE",
+  "main": "main.js",
+  "scripts": {
+    "dev": "npx serve ."
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
