@@ -452,7 +452,7 @@
                 // Framerate-independent interpolation
                 const lerpFactor = 1 - Math.pow(1 - 0.2, timeScale);
                 this.mesh.position.lerp(this.targetPos, lerpFactor);
-                this.mesh.rotation.y = this.targetYaw;
+                this.mesh.rotation.y = this.targetYaw + Math.PI;
             }
 
             die() {
@@ -938,7 +938,7 @@
                                     const relativeY = hitY - playerY;
                                     
                                     if (relativeY > 1.35) {
-                                        actualDamage *= 2.5; // 250% Headshot multiplier
+                                        actualDamage = 150; // Guaranteed one-shot
                                         console.log("HEADSHOT!");
                                         // Visual feedback for headshot could go here
                                     }
