@@ -376,9 +376,11 @@
             takeDamage(amount) {
                 if (!this.isAlive) return;
                 showHitmarker();
-                // In Host-Client, we tell the host we hit someone. 
-                // If we ARE the host, we process it and broadcast.
-                sendNetworkData({ type: 'hit', targetId: this.id, damage: amount });
+                if (isHost) {
+                    processHit(this.id, amount);
+                } else {
+                    sendNetworkData({ type: 'hit', targetId: this.id, damage: amount });
+                }
             }
 
             update(now) {
@@ -544,23 +546,7 @@
 
                 case 'hit':
                     if (isHost) {
-                        // Host validates and processes damage
-                        if (data.targetId === peer.id) {
-                            damagePlayer(data.damage);
-                        } else {
-                            const target = remotePlayers.get(data.targetId);
-                            if (target) {
-                                target.hp -= data.damage;
-                                if (target.hp <= 0) {
-                                    broadcast({ type: 'die', id: data.targetId });
-                                    target.die();
-                                } else {
-                                    broadcast({ type: 'update', id: data.targetId, state: { hp: target.hp } });
-                                }
-                            }
-                        }
-                    } else {
-                        // Clients just receive updates (handled in 'update' or 'die')
+                        processHit(data.targetId, data.damage);
                     }
                     break;
 
@@ -614,6 +600,26 @@
                 // Remove from collidables/shootables
                 shootables.splice(shootables.indexOf(p.mesh), 1);
                 remotePlayers.delete(id);
+            }
+        }
+
+        function processHit(targetId, damage) {
+            if (!isHost) return;
+            
+            if (targetId === peer.id) {
+                damagePlayer(damage);
+            } else {
+                const target = remotePlayers.get(targetId);
+                if (target && target instanceof RemotePlayer) {
+                    target.hp -= damage;
+                    console.log(`Player ${targetId} hit! HP: ${target.hp}`);
+                    if (target.hp <= 0) {
+                        broadcast({ type: 'die', id: targetId });
+                        target.die();
+                    } else {
+                        broadcast({ type: 'update', id: targetId, state: { hp: target.hp } });
+                    }
+                }
             }
         }
 
