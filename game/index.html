@@ -272,8 +272,8 @@
         // ─── WEAPONS SYSTEM ─────────────────────────────────────────
         const weapons = {
             1: { key: 1, id: 'ak47', name: 'AK-47', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
-            2: { key: 2, id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.0003, pos: new THREE.Vector3(0.012, -0.015, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, 0), model: null },
-            3: { key: 3, id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.010, -0.035), rot: new THREE.Euler(0, -Math.PI / 2, Math.PI / 2), model: null }
+            2: { key: 2, id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00025, pos: new THREE.Vector3(0.015, -0.018, -0.040), rot: new THREE.Euler(0.05, -Math.PI / 2 + 0.05, 0.05), model: null },
+            3: { key: 3, id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.010, -0.015, -0.040), rot: new THREE.Euler(0, -Math.PI / 2 + 0.5, Math.PI / 4), model: null }
         };
         let currentWeaponKey = 1;
 
