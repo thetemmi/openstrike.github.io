@@ -120,11 +120,16 @@ window.addEventListener('resize', () => {
 });
 
 // UI Logic
-const hostBtn = document.querySelector('#host-btn');
-const joinBtn = document.querySelector('#join-btn');
+const playBtn = document.querySelector('#play-btn');
 const loadoutBtn = document.querySelector('#loadout-btn');
 const settingsBtn = document.querySelector('#settings-btn');
 const exitBtn = document.querySelector('#exit-btn');
+
+const playModal = document.querySelector('#play-modal');
+const playCancelBtn = document.querySelector('#play-cancel-btn');
+const submenuJoinBtn = document.querySelector('#submenu-join-btn');
+const submenuHostBtn = document.querySelector('#submenu-host-btn');
+const submenuMatchmakingBtn = document.querySelector('#submenu-matchmaking-btn');
 
 const joinModal = document.querySelector('#join-modal');
 const modalCancelBtn = document.querySelector('#modal-cancel-btn');
@@ -150,23 +155,52 @@ if (infoCloseBtn) {
     });
 }
 
-if (hostBtn) {
-    hostBtn.addEventListener('click', () => {
-        hostBtn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            hostBtn.style.transform = '';
-            modeModal.style.display = 'flex';
-        }, 100);
+// Main Menu Buttons
+if (playBtn) {
+    playBtn.addEventListener('click', () => {
+        playModal.style.display = 'flex';
+    });
+}
+
+if (playCancelBtn) {
+    playCancelBtn.addEventListener('click', () => {
+        playModal.style.display = 'none';
+    });
+}
+
+// Play Sub-Menu Buttons
+if (submenuHostBtn) {
+    submenuHostBtn.addEventListener('click', () => {
+        playModal.style.display = 'none';
+        modeModal.style.display = 'flex';
+    });
+}
+
+if (submenuJoinBtn) {
+    submenuJoinBtn.addEventListener('click', () => {
+        playModal.style.display = 'none';
+        joinModal.style.display = 'flex';
+        hostIdInput.focus();
+    });
+}
+
+if (submenuMatchmakingBtn) {
+    submenuMatchmakingBtn.addEventListener('click', () => {
+        window.location.href = `./game/index.html?mode=matchmaking&gameMode=duel`;
     });
 }
 
 if (modeCancelBtn) {
     modeCancelBtn.addEventListener('click', () => {
         modeModal.style.display = 'none';
+        playModal.style.display = 'flex'; // Go back to play menu
     });
 }
 
 document.querySelectorAll('.mode-btn').forEach(btn => {
+    // Only for actual game modes, not submenu buttons
+    if (btn.id.startsWith('submenu-')) return;
+    
     btn.addEventListener('click', () => {
         const mode = btn.dataset.mode;
         btn.style.background = 'rgba(0, 242, 255, 0.2)';
@@ -175,17 +209,6 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
         }, 300);
     });
 });
-
-if (joinBtn) {
-    joinBtn.addEventListener('click', () => {
-        joinBtn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            joinBtn.style.transform = '';
-            joinModal.style.display = 'flex';
-            hostIdInput.focus();
-        }, 100);
-    });
-}
 
 if (loadoutBtn) {
     loadoutBtn.addEventListener('click', () => {
@@ -210,6 +233,7 @@ if (exitBtn) {
 if (modalCancelBtn) {
     modalCancelBtn.addEventListener('click', () => {
         joinModal.style.display = 'none';
+        playModal.style.display = 'flex'; // Go back to play menu
         hostIdInput.value = '';
     });
 }
@@ -227,7 +251,7 @@ if (modalConnectBtn) {
 }
 
 document.querySelectorAll('.menu-btn').forEach(btn => {
-    if (['host-btn', 'join-btn', 'loadout-btn', 'settings-btn', 'exit-btn', 'modal-cancel-btn', 'modal-connect-btn', 'info-close-btn'].includes(btn.id)) return; 
+    if (['play-btn', 'loadout-btn', 'settings-btn', 'exit-btn', 'modal-cancel-btn', 'modal-connect-btn', 'info-close-btn', 'play-cancel-btn'].includes(btn.id)) return; 
     btn.addEventListener('click', () => {
         btn.style.transform = 'scale(0.95)';
         setTimeout(() => btn.style.transform = '', 100);
