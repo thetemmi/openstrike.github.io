@@ -957,6 +957,10 @@
             return isHost ? SPAWN_HOST : SPAWN_CLIENT;
         }
 
+        let currentWeaponKey = 'ak47';
+        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
+        let activeSlot = 'primary'; // 'primary', 'secondary', 'melee'
+
         let bobTimer = 0;
         let swayX = 0, swayY = 0;
         let reloadOffsetY = 0, reloadRotX = 0; // Procedural animation offsets
@@ -1320,6 +1324,11 @@
                         }
                     });
                 });
+
+                if (result === 'failed') {
+                    // Short delay to prevent PeerJS from choking on rapid destroy/create
+                    await new Promise(r => setTimeout(r, 200));
+                }
 
                 if (result === 'hosted' || result === 'joined') {
                     dbg.textContent = `MATCH DEPLOYED: ${matchId}`;

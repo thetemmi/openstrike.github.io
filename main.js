@@ -146,41 +146,41 @@ const infoCloseBtn = document.querySelector('#info-close-btn');
 function showInfoModal(title, message) {
     infoTitle.innerText = title;
     infoMessage.innerText = message;
-    infoModal.style.display = 'flex';
+    infoModal.classList.add('active');
 }
 
 if (infoCloseBtn) {
     infoCloseBtn.addEventListener('click', () => {
-        infoModal.style.display = 'none';
+        infoModal.classList.remove('active');
     });
 }
 
 // Main Menu Buttons
 if (playBtn) {
     playBtn.addEventListener('click', () => {
-        playModal.style.display = 'flex';
+        playModal.classList.add('active');
     });
 }
 
 if (playCancelBtn) {
     playCancelBtn.addEventListener('click', () => {
-        playModal.style.display = 'none';
+        playModal.classList.remove('active');
     });
 }
 
 // Play Sub-Menu Buttons
 if (submenuHostBtn) {
     submenuHostBtn.addEventListener('click', () => {
-        playModal.style.display = 'none';
-        modeModal.style.display = 'flex';
+        playModal.classList.remove('active');
+        modeModal.classList.add('active');
     });
 }
 
 if (submenuJoinBtn) {
     submenuJoinBtn.addEventListener('click', () => {
-        playModal.style.display = 'none';
-        joinModal.style.display = 'flex';
-        hostIdInput.focus();
+        playModal.classList.remove('active');
+        joinModal.classList.add('active');
+        setTimeout(() => hostIdInput.focus(), 100);
     });
 }
 
@@ -192,8 +192,8 @@ if (submenuMatchmakingBtn) {
 
 if (modeCancelBtn) {
     modeCancelBtn.addEventListener('click', () => {
-        modeModal.style.display = 'none';
-        playModal.style.display = 'flex'; // Go back to play menu
+        modeModal.classList.remove('active');
+        playModal.classList.add('active'); // Go back to play menu
     });
 }
 
@@ -232,8 +232,8 @@ if (exitBtn) {
 
 if (modalCancelBtn) {
     modalCancelBtn.addEventListener('click', () => {
-        joinModal.style.display = 'none';
-        playModal.style.display = 'flex'; // Go back to play menu
+        joinModal.classList.remove('active');
+        playModal.classList.add('active'); // Go back to play menu
         hostIdInput.value = '';
     });
 }
