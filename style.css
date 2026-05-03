@@ -237,13 +237,18 @@ footer { animation-delay: 1.1s; }
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px);
-    display: flex;
+    background: rgba(0, 0, 0, 0.9); /* Darker for clarity */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
     justify-content: center;
     align-items: center;
-    z-index: 200;
+    z-index: 1000;
     pointer-events: auto;
+}
+
+.modal-overlay.active {
+    display: flex;
 }
 
 .modal-content {
