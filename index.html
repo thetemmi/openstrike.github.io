@@ -54,71 +54,74 @@
             <div class="version">VERSION 1.0.42-BETA</div>
             <div class="status">SYSTEMS: <span class="online">ONLINE</span></div>
         </footer>
-    </div>
 
-    <!-- Modals (Secured with multiple visibility locks) -->
-    <div id="play-modal" class="modal-overlay" hidden>
-        <div class="modal-content">
-            <h2>TACTICAL DEPLOYMENT</h2>
-            <p>SELECT ENTRY PROTOCOL</p>
-            <div class="mode-grid">
-                <button class="mode-btn" id="submenu-join-btn">
-                    <span class="mode-title">JOIN GAME</span>
-                    <span class="mode-desc">Connect to an existing peer network via Host ID.</span>
-                </button>
-                <button class="mode-btn" id="submenu-host-btn">
-                    <span class="mode-title">HOST GAME</span>
-                    <span class="mode-desc">Initialize a new server and invite other operators.</span>
-                </button>
-                <button class="mode-btn" id="submenu-matchmaking-btn">
-                    <span class="mode-title">MATCHMAKING <span style="font-size: 0.7em; opacity: 0.6;">(BETA)</span></span>
-                    <span class="mode-desc">Automated combatant allocation system.</span>
-                </button>
-            </div>
-            <div class="modal-actions">
-                <button class="menu-btn" id="play-cancel-btn"><span class="btn-text">BACK</span></button>
+        <!-- Play Modal -->
+        <div id="play-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <h2>TACTICAL DEPLOYMENT</h2>
+                <p>SELECT ENTRY PROTOCOL</p>
+                <div class="mode-grid">
+                    <button class="mode-btn" id="submenu-join-btn">
+                        <span class="mode-title">JOIN GAME</span>
+                        <span class="mode-desc">Connect to an existing peer network via Host ID.</span>
+                    </button>
+                    <button class="mode-btn" id="submenu-host-btn">
+                        <span class="mode-title">HOST GAME</span>
+                        <span class="mode-desc">Initialize a new server and invite other operators.</span>
+                    </button>
+                    <button class="mode-btn" id="submenu-matchmaking-btn">
+                        <span class="mode-title">MATCHMAKING <span style="font-size: 0.7em; opacity: 0.6;">(BETA)</span></span>
+                        <span class="mode-desc">Automated combatant allocation system.</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button class="menu-btn" id="play-cancel-btn"><span class="btn-text">BACK</span></button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="mode-modal" class="modal-overlay" hidden>
-        <div class="modal-content">
-            <h2>SELECT ENGAGEMENT TYPE</h2>
-            <p>CHOOSE GAME RULES FOR DEPLOYMENT</p>
-            <div class="mode-grid">
-                <button class="mode-btn" data-mode="deathmatch">
-                    <span class="mode-title">DEATHMATCH</span>
-                    <span class="mode-desc">Endless respawn. High intensity.</span>
-                </button>
-                <button class="mode-btn" data-mode="duel">
-                    <span class="mode-title">DUEL (1v1)</span>
-                    <span class="mode-desc">13 round match. One life per round.</span>
-                </button>
-            </div>
-            <div class="modal-actions">
-                <button class="menu-btn" id="mode-cancel-btn"><span class="btn-text">CANCEL</span></button>
-            </div>
-        </div>
-    </div>
-
-    <div id="join-modal" class="modal-overlay" hidden>
-        <div class="modal-content">
-            <h2>JOIN TACTICAL DEPLOYMENT</h2>
-            <p>ENTER HOST ID TO CONNECT TO PEER NETWORK</p>
-            <input type="text" id="host-id-input" placeholder="e.g. 1a2b3c4d..." autocomplete="off">
-            <div class="modal-actions">
-                <button class="menu-btn" id="modal-cancel-btn"><span class="btn-text">CANCEL</span></button>
-                <button class="menu-btn primary" id="modal-connect-btn"><span class="btn-text">CONNECT</span></button>
+        <!-- Mode Selection Modal -->
+        <div id="mode-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <h2>SELECT ENGAGEMENT TYPE</h2>
+                <p>CHOOSE GAME RULES FOR DEPLOYMENT</p>
+                <div class="mode-grid">
+                    <button class="mode-btn" data-mode="deathmatch">
+                        <span class="mode-title">DEATHMATCH</span>
+                        <span class="mode-desc">Endless respawn. High intensity.</span>
+                    </button>
+                    <button class="mode-btn" data-mode="duel">
+                        <span class="mode-title">DUEL (1v1)</span>
+                        <span class="mode-desc">13 round match. One life per round.</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button class="menu-btn" id="mode-cancel-btn"><span class="btn-text">CANCEL</span></button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div id="info-modal" class="modal-overlay" hidden>
-        <div class="modal-content">
-            <h2 id="info-title">FEATURE CLASSIFIED</h2>
-            <p id="info-message">This module is currently under development. Check back in a later update.</p>
-            <div class="modal-actions">
-                <button class="menu-btn primary" id="info-close-btn"><span class="btn-text">ACKNOWLEDGED</span></button>
+        <!-- Join Game Modal -->
+        <div id="join-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <h2>JOIN TACTICAL DEPLOYMENT</h2>
+                <p>ENTER HOST ID TO CONNECT TO PEER NETWORK</p>
+                <input type="text" id="host-id-input" placeholder="e.g. 1a2b3c4d..." autocomplete="off">
+                <div class="modal-actions">
+                    <button class="menu-btn" id="modal-cancel-btn"><span class="btn-text">CANCEL</span></button>
+                    <button class="menu-btn primary" id="modal-connect-btn"><span class="btn-text">CONNECT</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Modal (Coming Soon) -->
+        <div id="info-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <h2 id="info-title">FEATURE CLASSIFIED</h2>
+                <p id="info-message">This module is currently under development. Check back in a later update.</p>
+                <div class="modal-actions">
+                    <button class="menu-btn primary" id="info-close-btn"><span class="btn-text">ACKNOWLEDGED</span></button>
+                </div>
             </div>
         </div>
     </div>

@@ -750,21 +750,6 @@
         uiSun.position.set(50, 100, 50);
         uiScene.add(uiSun);
 
-        // ─── WEAPONS SYSTEM (MOVED TO TOP FOR INIT) ─────────────────
-        const weapons = {
-            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', price: 2700, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
-            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', price: 3100, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.0009, pos: new THREE.Vector3(0.0160, -0.007, -0.0320), rot: new THREE.Euler(0.05, -1.62, 0.10), model: null },
-            'awp': { key: 'awp', id: 'awp', name: 'AWP', price: 4750, ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
-            'usp': { key: 'usp', id: 'usp', name: 'USP-S', price: 200, ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
-            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', price: 700, ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
-            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', price: 0, ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
-        };
-        const SPAWN_HOST = new THREE.Vector3(-14.81, 0.84, 0.83);
-        const SPAWN_CLIENT = new THREE.Vector3(-17.95, 0.84, 3.90);
-        let currentWeaponKey = 'ak47';
-        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
-        let activeSlot = 'primary';
-
         const canvas = document.getElementById('game-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(innerWidth, innerHeight);
@@ -909,12 +894,8 @@
             playerHealth = 100;
             document.getElementById('hp-value').textContent = 100;
             document.getElementById('hp-bar').style.width = '100%';
-
-            const spawn = getSpawn();
-            camera.position.copy(spawn);
-
-            yaw = isHost ? Math.PI : 0; // Host faces one way, client the other
-            pitch = 0;
+            camera.position.set(-17.498, 0.842, 3.014);
+            yaw = 0; pitch = 0;
             const w = weapons[currentWeaponKey];
             if (!w.isMelee) { w.ammo = w.maxAmmo; w.reserve = (w.id === 'ak47') ? 90 : 48; }
             updateWeaponUI();
@@ -955,9 +936,18 @@
             }, 3000);
         }
 
-        function getSpawn() {
-            return isHost ? SPAWN_HOST : SPAWN_CLIENT;
-        }
+        // ─── WEAPONS SYSTEM ─────────────────────────────────────────
+        const weapons = {
+            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', price: 2700, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
+            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', price: 3100, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.0009, pos: new THREE.Vector3(0.0160, -0.007, -0.0320), rot: new THREE.Euler(0.05, -1.62, 0.10), model: null },
+            'awp': { key: 'awp', id: 'awp', name: 'AWP', price: 4750, ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
+            'usp': { key: 'usp', id: 'usp', name: 'USP-S', price: 200, ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
+            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', price: 700, ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
+            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', price: 0, ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
+        };
+        let currentWeaponKey = 'ak47';
+        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
+        let activeSlot = 'primary'; // 'primary', 'secondary', 'melee'
 
         let bobTimer = 0;
         let swayX = 0, swayY = 0;
@@ -1198,23 +1188,51 @@
             }
         }
 
-        async function initNetworking() {
-            if (params.get('mode') === 'matchmaking') {
-                dbg.textContent = 'INITIATING MATCHMAKING...';
-                await startMatchmaking();
+        let currentMatchmakingRoom = null;
+        let resumeMatchmakingRoom = null;
+
+        function findMatch(roomNum) {
+            if (roomNum > 50) {
+                dbg.innerHTML += `<br>MATCHMAKING FAILED: NO ROOMS AVAILABLE.`;
                 return;
             }
+            currentMatchmakingRoom = roomNum;
+            const targetId = 'match' + roomNum;
+            dbg.textContent = `MATCHMAKING: CHECKING ROOM ${roomNum}...`;
+            const conn = peer.connect(targetId);
+            
+            // Timeout if connection doesn't open in a reasonable time, unless it threw peer-unavailable
+            let timeout = setTimeout(() => {
+                if (!conn.open) {
+                     // Sometimes peer-unavailable fires, sometimes it just hangs. 
+                     // We let the error handler catch peer-unavailable.
+                     // But just in case:
+                }
+            }, 5000);
 
-            peer = new Peer();
+            conn.on('open', () => {
+                clearTimeout(timeout);
+                // Connection opened, send join request
+                conn.send({ type: 'join', id: peer.id });
+                setupConnection(conn);
+            });
+        }
 
+        function initNetworkingHandlers() {
             peer.on('open', id => {
                 dbg.textContent = 'NETWORK READY';
+                if (resumeMatchmakingRoom) {
+                    findMatch(resumeMatchmakingRoom);
+                    resumeMatchmakingRoom = null;
+                    return;
+                }
+                
                 if (gameMode === 'duel') {
                     // duel specific host logic handled via params
                 }
+
                 if (params.get('mode') === 'host') {
                     isHost = true;
-                    respawn(); // Move to host spawn
                     document.getElementById('room-id-panel').style.display = 'block';
                     const idVal = document.getElementById('room-id-value');
                     idVal.textContent = id;
@@ -1226,173 +1244,70 @@
                 } else if (params.get('mode') === 'join' && params.get('hostId')) {
                     dbg.textContent = 'CONNECTING TO HOST...';
                     const conn = peer.connect(params.get('hostId'));
-                    isHost = false;
-                    respawn(); // Move to client spawn
                     setupConnection(conn);
+                } else if (params.get('mode') === 'matchmaking') {
+                    if (isHost) {
+                        document.getElementById('room-id-panel').style.display = 'block';
+                        document.getElementById('room-id-value').textContent = id + ' (MM)';
+                    } else {
+                        findMatch(1);
+                    }
                 }
             });
 
             peer.on('connection', conn => {
                 if (isHost) {
-                    if (gameMode === 'duel' && connections.length >= 1) {
-                        console.log('DUEL FULL. REJECTING:', conn.peer);
-                        setTimeout(() => conn.close(), 500);
-                        return;
-                    }
                     setupConnection(conn);
                 }
             });
 
             peer.on('error', err => {
                 console.error('PeerJS Error:', err);
-                if (err.type === 'id-taken' && params.get('mode') !== 'matchmaking') {
-                    dbg.innerHTML += `<br><span style="color:red">ID TAKEN</span>`;
+                if (params.get('mode') === 'matchmaking') {
+                    if (err.type === 'peer-unavailable') {
+                        // The room we tried to connect to doesn't exist. Let's host it.
+                        if (currentMatchmakingRoom) {
+                            dbg.innerHTML += `<br>ROOM ${currentMatchmakingRoom} NOT FOUND. HOSTING...`;
+                            peer.destroy();
+                            isHost = true;
+                            // Initialize peer as the host of this room
+                            setTimeout(() => {
+                                peer = new Peer('match' + currentMatchmakingRoom);
+                                initNetworkingHandlers(); // Re-attach handlers to the new peer
+                            }, 500);
+                        }
+                    } else if (err.type === 'unavailable-id') {
+                        // We tried to host, but someone beat us to it. Try connecting to the next room.
+                        dbg.innerHTML += `<br>ROOM TAKEN. TRYING NEXT...`;
+                        peer.destroy();
+                        isHost = false;
+                        setTimeout(() => {
+                            peer = new Peer();
+                            initNetworkingHandlers();
+                            // We wait for the 'open' event, which will call findMatch(currentMatchmakingRoom + 1) via a flag if needed.
+                            // But since we just destroyed it, let's just use a global variable to resume.
+                            resumeMatchmakingRoom = currentMatchmakingRoom + 1;
+                        }, 500);
+                    } else {
+                        dbg.innerHTML += `<br><span style="color:red">ERR: ${err.type}</span>`;
+                    }
+                } else {
+                    dbg.innerHTML += `<br><span style="color:red">ERR: ${err.type}</span>`;
                 }
             });
         }
 
-        async function startMatchmaking() {
-            // Reset any previous networking state
-            connections = [];
-            if (peer) peer.destroy();
-            peer = null;
-            isHost = false;
-
-            for (let i = 1; i <= 20; i++) {
-                const matchId = `open-strike-match-${i}`;
-                dbg.innerHTML = `SCANNING SECTOR ${i}... [${matchId}]`;
-
-                // PHASE 1: Try to claim the host ID.
-                // If we succeed → we are the host.
-                // If we get 'id-taken' or 'unavailable-id' → a host already exists, so we JOIN them.
-                // If we get any other error → sector is broken, skip it.
-                const probeResult = await new Promise(resolve => {
-                    const probePeer = new Peer(matchId);
-                    const probeTimeout = setTimeout(() => {
-                        probePeer.destroy();
-                        resolve('timeout');
-                    }, 5000);
-
-                    probePeer.on('open', () => {
-                        clearTimeout(probeTimeout);
-                        // We successfully claimed the ID — we are the HOST
-                        peer = probePeer;
-                        isHost = true;
-                        peer.on('connection', conn => {
-                            if (gameMode === 'duel' && connections.length >= 1) {
-                                conn.close();
-                                return;
-                            }
-                            setupConnection(conn);
-                        });
-                        document.getElementById('room-id-panel').style.display = 'block';
-                        document.getElementById('room-id-value').textContent = matchId;
-                        dbg.innerHTML = `HOSTING: ${matchId}<br><span style="color:#00f2ff">WAITING FOR OPPONENT...</span>`;
-                        resolve('hosting');
-                    });
-
-                    probePeer.on('error', err => {
-                        clearTimeout(probeTimeout);
-                        probePeer.destroy();
-                        // PeerJS v1.5.4 uses 'unavailable-id'; older versions use 'id-taken'
-                        if (err.type === 'unavailable-id' || err.type === 'id-taken') {
-                            // Host exists in this sector — we should JOIN
-                            dbg.innerHTML += `<br><span style="color:cyan">HOST DETECTED IN SECTOR ${i}</span>`;
-                            resolve('host-exists');
-                        } else {
-                            dbg.innerHTML += `<br><span style="color:gray">SECTOR ${i} ERROR: ${err.type}</span>`;
-                            resolve('error');
-                        }
-                    });
-                });
-
-                if (probeResult === 'hosting') {
-                    respawn();
-                    updateScoreUI();
-                    return; // We are host, wait for client
-                }
-
-                if (probeResult === 'host-exists') {
-                    // PHASE 2: Join the existing host
-                    dbg.innerHTML = `JOINING SECTOR ${i}... [${matchId}]`;
-                    const joinResult = await new Promise(resolve => {
-                        const joinPeer = new Peer();
-                        let done = false;
-
-                        const finish = (res) => {
-                            if (done) return;
-                            done = true;
-                            clearTimeout(joinTimeout);
-                            resolve(res);
-                        };
-
-                        const joinTimeout = setTimeout(() => {
-                            dbg.innerHTML += `<br><span style="color:orange">JOIN TIMEOUT (10s)</span>`;
-                            joinPeer.destroy();
-                            finish('timeout');
-                        }, 10000);
-
-                        joinPeer.on('open', () => {
-                            const conn = joinPeer.connect(matchId, { reliable: true, serialization: 'json' });
-
-                            conn.on('open', () => {
-                                dbg.innerHTML = `<span style="color:lime">JOINED: ${matchId}</span>`;
-                                peer = joinPeer;
-                                isHost = false;
-                                setupConnection(conn);
-                                finish('joined');
-                            });
-
-                            conn.on('close', () => {
-                                dbg.innerHTML += `<br><span style="color:orange">REJECTED (ROOM FULL)</span>`;
-                                joinPeer.destroy();
-                                finish('rejected');
-                            });
-
-                            conn.on('error', err => {
-                                dbg.innerHTML += `<br><span style="color:gray">CONN ERROR: ${err.type}</span>`;
-                                joinPeer.destroy();
-                                finish('error');
-                            });
-                        });
-
-                        joinPeer.on('error', err => {
-                            dbg.innerHTML += `<br><span style="color:red">JOIN PEER ERROR: ${err.type}</span>`;
-                            finish('error');
-                        });
-                    });
-
-                    if (joinResult === 'joined') {
-                        respawn();
-                        updateScoreUI();
-                        return;
-                    }
-                    // If rejected/timeout/error → sector is full or broken, try next
-                }
-
-                // Brief pause before trying next sector
-                await new Promise(r => setTimeout(r, 400));
-            }
-
-            dbg.innerHTML = '<span style="color:red">MATCHMAKING TIMEOUT. ALL SECTORS FULL.</span>';
+        function initNetworking() {
+            peer = new Peer();
+            initNetworkingHandlers();
         }
-
 
         function setupConnection(conn) {
             console.log('Setting up connection with:', conn.peer);
             connections.push(conn);
-
-            const sendJoin = () => {
+            conn.on('open', () => {
                 if (!isHost) conn.send({ type: 'join', id: peer.id });
-            };
-
-            if (conn.open) {
-                // Already open — send immediately
-                sendJoin();
-            } else {
-                conn.on('open', sendJoin);
-            }
-
+            });
             conn.on('data', data => handleNetworkMessage(data, conn));
             conn.on('close', () => {
                 removePlayer(conn.peer);
@@ -1405,11 +1320,29 @@
             switch (data.type) {
                 case 'join':
                     if (isHost) {
+                        if (gameMode === 'duel' && connections.length > 1) {
+                            conn.send({ type: 'reject', reason: 'Room Full' });
+                            return;
+                        }
+                        conn.send({ type: 'accept' });
                         broadcast({ type: 'playerJoined', id: senderId }, conn);
                         remotePlayers.forEach((p, id) => conn.send({ type: 'playerJoined', id: id }));
                         conn.send({ type: 'roundStart', round: currentRound, pScore: playerScore, eScore: enemyScore });
                     }
                     createRemotePlayer(senderId);
+                    break;
+                case 'reject':
+                    dbg.innerHTML += `<br>REJECTED: ${data.reason}`;
+                    conn.close();
+                    if (params.get('mode') === 'matchmaking') {
+                        findMatch(currentMatchmakingRoom + 1);
+                    }
+                    break;
+                case 'accept':
+                    dbg.innerHTML += `<br>JOIN ACCEPTED!`;
+                    // Now we are fully connected.
+                    document.getElementById('room-id-panel').style.display = 'block';
+                    document.getElementById('room-id-value').textContent = 'match' + currentMatchmakingRoom + ' (MM)';
                     break;
                 case 'update':
                     if (isHost) broadcast({ type: 'update', id: data.id, state: data.state }, conn);

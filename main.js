@@ -146,49 +146,41 @@ const infoCloseBtn = document.querySelector('#info-close-btn');
 function showInfoModal(title, message) {
     infoTitle.innerText = title;
     infoMessage.innerText = message;
-    infoModal.hidden = false;
-    infoModal.classList.add('active');
+    infoModal.style.display = 'flex';
 }
 
 if (infoCloseBtn) {
     infoCloseBtn.addEventListener('click', () => {
-        infoModal.classList.remove('active');
-        infoModal.hidden = true;
+        infoModal.style.display = 'none';
     });
 }
 
 // Main Menu Buttons
 if (playBtn) {
     playBtn.addEventListener('click', () => {
-        playModal.hidden = false;
-        playModal.classList.add('active');
+        playModal.style.display = 'flex';
     });
 }
 
 if (playCancelBtn) {
     playCancelBtn.addEventListener('click', () => {
-        playModal.classList.remove('active');
-        playModal.hidden = true;
+        playModal.style.display = 'none';
     });
 }
 
 // Play Sub-Menu Buttons
 if (submenuHostBtn) {
     submenuHostBtn.addEventListener('click', () => {
-        playModal.classList.remove('active');
-        playModal.hidden = true;
-        modeModal.hidden = false;
-        modeModal.classList.add('active');
+        playModal.style.display = 'none';
+        modeModal.style.display = 'flex';
     });
 }
 
 if (submenuJoinBtn) {
     submenuJoinBtn.addEventListener('click', () => {
-        playModal.classList.remove('active');
-        playModal.hidden = true;
-        joinModal.hidden = false;
-        joinModal.classList.add('active');
-        setTimeout(() => hostIdInput.focus(), 100);
+        playModal.style.display = 'none';
+        joinModal.style.display = 'flex';
+        hostIdInput.focus();
     });
 }
 
@@ -200,10 +192,8 @@ if (submenuMatchmakingBtn) {
 
 if (modeCancelBtn) {
     modeCancelBtn.addEventListener('click', () => {
-        modeModal.classList.remove('active');
-        modeModal.hidden = true;
-        playModal.hidden = false;
-        playModal.classList.add('active'); // Go back to play menu
+        modeModal.style.display = 'none';
+        playModal.style.display = 'flex'; // Go back to play menu
     });
 }
 
@@ -242,10 +232,8 @@ if (exitBtn) {
 
 if (modalCancelBtn) {
     modalCancelBtn.addEventListener('click', () => {
-        joinModal.classList.remove('active');
-        joinModal.hidden = true;
-        playModal.hidden = false;
-        playModal.classList.add('active'); // Go back to play menu
+        joinModal.style.display = 'none';
+        playModal.style.display = 'flex'; // Go back to play menu
         hostIdInput.value = '';
     });
 }
