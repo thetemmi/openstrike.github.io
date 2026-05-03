@@ -122,20 +122,59 @@ window.addEventListener('resize', () => {
 // UI Logic
 const hostBtn = document.querySelector('#host-btn');
 const joinBtn = document.querySelector('#join-btn');
+const loadoutBtn = document.querySelector('#loadout-btn');
+const settingsBtn = document.querySelector('#settings-btn');
+const exitBtn = document.querySelector('#exit-btn');
+
 const joinModal = document.querySelector('#join-modal');
 const modalCancelBtn = document.querySelector('#modal-cancel-btn');
 const modalConnectBtn = document.querySelector('#modal-connect-btn');
 const hostIdInput = document.querySelector('#host-id-input');
+const modeModal = document.querySelector('#mode-modal');
+const modeCancelBtn = document.querySelector('#mode-cancel-btn');
+
+const infoModal = document.querySelector('#info-modal');
+const infoTitle = document.querySelector('#info-title');
+const infoMessage = document.querySelector('#info-message');
+const infoCloseBtn = document.querySelector('#info-close-btn');
+
+function showInfoModal(title, message) {
+    infoTitle.innerText = title;
+    infoMessage.innerText = message;
+    infoModal.style.display = 'flex';
+}
+
+if (infoCloseBtn) {
+    infoCloseBtn.addEventListener('click', () => {
+        infoModal.style.display = 'none';
+    });
+}
 
 if (hostBtn) {
     hostBtn.addEventListener('click', () => {
         hostBtn.style.transform = 'scale(0.95)';
-        hostBtn.style.filter = 'brightness(1.5)';
         setTimeout(() => {
-            window.location.href = './game/index.html?mode=host';
-        }, 500);
+            hostBtn.style.transform = '';
+            modeModal.style.display = 'flex';
+        }, 100);
     });
 }
+
+if (modeCancelBtn) {
+    modeCancelBtn.addEventListener('click', () => {
+        modeModal.style.display = 'none';
+    });
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        btn.style.background = 'rgba(0, 242, 255, 0.2)';
+        setTimeout(() => {
+            window.location.href = `./game/index.html?mode=host&gameMode=${mode}`;
+        }, 300);
+    });
+});
 
 if (joinBtn) {
     joinBtn.addEventListener('click', () => {
@@ -145,6 +184,26 @@ if (joinBtn) {
             joinModal.style.display = 'flex';
             hostIdInput.focus();
         }, 100);
+    });
+}
+
+if (loadoutBtn) {
+    loadoutBtn.addEventListener('click', () => {
+        showInfoModal('ARMORY ACCESS DENIED', 'Loadout customization is currently offline for maintenance. Default equipment will be assigned upon deployment.');
+    });
+}
+
+if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+        showInfoModal('SYSTEM CONFIGURATION', 'Direct hardware calibration is not yet available in this sector. Optimization is currently automatic.');
+    });
+}
+
+if (exitBtn) {
+    exitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to abort the mission?')) {
+            window.location.href = 'about:blank';
+        }
     });
 }
 
@@ -168,7 +227,7 @@ if (modalConnectBtn) {
 }
 
 document.querySelectorAll('.menu-btn').forEach(btn => {
-    if (['host-btn', 'join-btn', 'modal-cancel-btn', 'modal-connect-btn'].includes(btn.id)) return; 
+    if (['host-btn', 'join-btn', 'loadout-btn', 'settings-btn', 'exit-btn', 'modal-cancel-btn', 'modal-connect-btn', 'info-close-btn'].includes(btn.id)) return; 
     btn.addEventListener('click', () => {
         btn.style.transform = 'scale(0.95)';
         setTimeout(() => btn.style.transform = '', 100);

@@ -147,7 +147,80 @@
             height: 2px;
         }
 
-        /* HUD */
+        /* Round HUD */
+        #round-hud {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--bg-glass);
+            padding: 10px 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .score-box {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+            width: 40px;
+            text-align: center;
+        }
+
+        .round-info {
+            text-align: center;
+        }
+
+        .round-info .round-num {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        .round-info .mode-label {
+            font-size: 10px;
+            color: var(--primary);
+            display: block;
+        }
+
+        /* Death Overlay Expansion */
+        #death-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        #death-overlay h1 {
+            color: #fff;
+            font-size: 64px;
+            text-shadow: 0 0 20px #f00;
+            margin-bottom: 20px;
+        }
+
+        #death-overlay p {
+            color: #fff;
+            font-size: 20px;
+        }
+
         #hud {
             position: fixed;
             bottom: 30px;
@@ -288,59 +361,147 @@
             pointer-events: none;
         }
 
-        /* Buy Menu */
+        /* Redesigned Buy Menu (CS2 Style) */
         #buy-menu {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 40px;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
             display: none;
             z-index: 500;
+            padding: 50px;
+            color: #fff;
+            flex-direction: column;
         }
 
-        #buy-menu h2 {
-            color: var(--primary);
+        .buy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .buy-money {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4caf50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .buy-timer {
             text-align: center;
-            margin-bottom: 30px;
-            letter-spacing: 5px;
+            font-size: 14px;
+            color: #aaa;
         }
 
-        .buy-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .buy-timer span {
+            display: block;
+            font-size: 18px;
+            color: #fff;
+            font-family: 'Roboto Mono', monospace;
+            margin-top: 5px;
+        }
+
+        .buy-columns {
+            display: flex;
             gap: 20px;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .buy-column {
+            flex: 1;
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .column-num {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .column-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ddd;
+            text-transform: uppercase;
         }
 
         .buy-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 15px;
             cursor: pointer;
             transition: all 0.2s;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+            min-height: 80px;
         }
 
         .buy-item:hover {
-            background: rgba(0, 242, 255, 0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--primary);
-            transform: translateY(-2px);
+            box-shadow: inset 0 0 15px rgba(0, 242, 255, 0.1);
         }
 
         .buy-item .name {
+            font-size: 11px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 5px;
+            text-align: right;
         }
 
-        .buy-item .type {
-            font-size: 10px;
-            color: var(--primary);
+        .buy-item .price {
+            font-size: 12px;
+            color: #aaa;
+            text-align: right;
+            margin-top: auto;
+        }
+
+        .buy-item .icon-placeholder {
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            opacity: 0.5;
+        }
+
+        .buy-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .buy-footer span {
+            color: #aaa;
         }
 
         /* Scope */
@@ -384,6 +545,15 @@
     <div id="game-container">
         <canvas id="game-canvas"></canvas>
 
+        <div id="round-hud">
+            <div id="player-score" class="score-box">0</div>
+            <div class="round-info">
+                <span id="mode-name" class="mode-label">DEATHMATCH</span>
+                <div id="round-text" class="round-num">ROUND 1</div>
+            </div>
+            <div id="enemy-score" class="score-box">0</div>
+        </div>
+
         <div id="crosshair">
             <div class="dot"></div>
             <div class="line top"></div>
@@ -410,6 +580,10 @@
             <div class="hud-panel ammo">
                 <div class="label">AK-47</div>
                 <div class="value" id="ammo-value">30 / 90</div>
+            </div>
+            <div class="hud-panel money" style="margin-left: 20px;">
+                <div class="label">CURRENCY</div>
+                <div class="value" id="hud-money-value" style="color: #4caf50;">$16000</div>
             </div>
             <div id="room-id-panel"
                 style="position: fixed; top: 20px; right: 20px; background: var(--bg-glass); border-right: 4px solid var(--primary); padding: 10px 20px; color: #fff; text-align: right; pointer-events: auto; display: none;">
@@ -440,32 +614,94 @@
         </div>
 
         <div id="buy-menu">
-            <h2>EQUIPMENT TERMINAL</h2>
-            <div class="buy-grid">
-                <div class="buy-item" onclick="buyWeapon('ak47')">
-                    <div class="name">AK-47</div>
-                    <div class="type">RIFLE</div>
+            <div class="buy-header">
+                <div class="buy-money">$16000</div>
+                <div class="buy-timer">
+                    Buy Time Remaining
+                    <span>2:45:56</span>
                 </div>
-                <div class="buy-item" onclick="buyWeapon('m4a4')">
-                    <div class="name">M4A4</div>
-                    <div class="type">RIFLE</div>
+                <div style="width: 100px;"></div> <!-- Spacer -->
+            </div>
+
+            <div class="buy-columns">
+                <!-- Equipment -->
+                <div class="buy-column">
+                    <div class="column-header">
+                        <span class="column-num">1</span>
+                        <span class="column-title">Equipment</span>
+                    </div>
+                    <div class="buy-item">
+                        <div class="name">Kevlar Vest</div>
+                        <div class="icon-placeholder">🛡️</div>
+                        <div class="price">$650</div>
+                    </div>
+                    <div class="buy-item">
+                        <div class="name">Kevlar + Helmet</div>
+                        <div class="icon-placeholder">🪖</div>
+                        <div class="price">$1000</div>
+                    </div>
                 </div>
-                <div class="buy-item" onclick="buyWeapon('awp')">
-                    <div class="name">AWP</div>
-                    <div class="type">SNIPER</div>
+
+                <!-- Pistols -->
+                <div class="buy-column">
+                    <div class="column-header">
+                        <span class="column-num">2</span>
+                        <span class="column-title">Pistols</span>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('usp')">
+                        <div class="name">USP-S</div>
+                        <div class="icon-placeholder">🔫</div>
+                        <div class="price">$200</div>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('deagle')">
+                        <div class="name">Desert Eagle</div>
+                        <div class="icon-placeholder">🔫</div>
+                        <div class="price">$700</div>
+                    </div>
                 </div>
-                <div class="buy-item" onclick="buyWeapon('usp')">
-                    <div class="name">USP-S</div>
-                    <div class="type">PISTOL</div>
+
+                <!-- Rifles -->
+                <div class="buy-column">
+                    <div class="column-header">
+                        <span class="column-num">4</span>
+                        <span class="column-title">Rifles</span>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('ak47')">
+                        <div class="name">AK-47</div>
+                        <div class="icon-placeholder">🔫</div>
+                        <div class="price">$2700</div>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('m4a4')">
+                        <div class="name">M4A4</div>
+                        <div class="icon-placeholder">🔫</div>
+                        <div class="price">$3100</div>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('awp')">
+                        <div class="name">AWP</div>
+                        <div class="icon-placeholder">🎯</div>
+                        <div class="price">$4750</div>
+                    </div>
                 </div>
-                <div class="buy-item" onclick="buyWeapon('deagle')">
-                    <div class="name">DEAGLE</div>
-                    <div class="type">PISTOL</div>
+
+                <!-- Melee -->
+                <div class="buy-column">
+                    <div class="column-header">
+                        <span class="column-num">5</span>
+                        <span class="column-title">Melee</span>
+                    </div>
+                    <div class="buy-item" onclick="buyWeapon('knife')">
+                        <div class="name">Knife</div>
+                        <div class="icon-placeholder">🔪</div>
+                        <div class="price">$0</div>
+                    </div>
                 </div>
-                <div class="buy-item" onclick="buyWeapon('knife')">
-                    <div class="name">KNIFE</div>
-                    <div class="type">MELEE</div>
-                </div>
+            </div>
+
+            <div class="buy-footer">
+                <div>HOLD <span>[LEFT CONTROL]</span> BUY FOR TEAMMATE</div>
+                <div><span>[F4]</span> RE-BUY PREVIOUS</div>
+                <div><span>[F3]</span> AUTO BUY</div>
+                <div><span>[ESCAPE]</span> BACK</div>
             </div>
         </div>
 
@@ -527,6 +763,10 @@
 
         blocker.addEventListener('click', () => {
             canvas.requestPointerLock();
+            if (!peer) {
+                initNetworking();
+                updateScoreUI();
+            }
         });
 
         document.addEventListener('pointerlockchange', () => {
@@ -597,10 +837,31 @@
 
         // ─── PLAYER HEALTH ──────────────────────────────────────────
         let playerHealth = 100;
+
+        // ─── GAME STATE ─────────────────────────────────────────────
+        const params = new URLSearchParams(window.location.search);
+        const gameMode = params.get('gameMode') || 'deathmatch';
+        let playerScore = 0;
+        let enemyScore = 0;
+        let currentRound = 1;
+        let isRoundActive = true;
+
+        function updateScoreUI() {
+            const pScore = document.getElementById('player-score');
+            const eScore = document.getElementById('enemy-score');
+            const rText = document.getElementById('round-text');
+            const mName = document.getElementById('mode-name');
+            if (pScore) pScore.textContent = playerScore;
+            if (eScore) eScore.textContent = enemyScore;
+            if (rText) rText.textContent = 'ROUND ' + currentRound;
+            if (mName) mName.textContent = gameMode.toUpperCase();
+        }
+        updateScoreUI(); // Initial HUD update
+
         function damagePlayer(amount) {
-            if (playerHealth <= 0 || isDead) return;
+            if (isDead || !isRoundActive) return;
             playerHealth -= amount;
-            document.getElementById('hp-value').textContent = playerHealth;
+            document.getElementById('hp-value').textContent = Math.max(0, playerHealth);
             document.getElementById('hp-bar').style.width = Math.max(0, playerHealth) + '%';
 
             // Visual damage flash
@@ -611,73 +872,78 @@
             flash.style.background = 'rgba(255, 0, 0, 0.3)';
             flash.style.pointerEvents = 'none';
             flash.style.zIndex = '50';
-            flash.style.transition = 'opacity 0.2s';
             document.body.appendChild(flash);
-            setTimeout(() => { flash.style.opacity = '0'; }, 50);
-            setTimeout(() => { flash.remove(); }, 250);
+            setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 200); }, 50);
 
             if (playerHealth <= 0) {
-                playerHealth = 0;
                 isDead = true;
-                document.getElementById('hp-value').textContent = 0;
                 sendNetworkData({ type: 'die', id: peer.id });
-
-                // Death Overlay
-                const deathScreen = document.createElement('div');
-                deathScreen.id = 'death-overlay';
-                deathScreen.style.position = 'fixed';
-                deathScreen.style.top = '0'; deathScreen.style.left = '0';
-                deathScreen.style.width = '100%'; deathScreen.style.height = '100%';
-                deathScreen.style.background = 'rgba(150, 0, 0, 0.5)';
-                deathScreen.style.display = 'flex';
-                deathScreen.style.flexDirection = 'column';
-                deathScreen.style.justifyContent = 'center';
-                deathScreen.style.alignItems = 'center';
-                deathScreen.style.color = '#fff';
-                deathScreen.style.zIndex = '1000';
-                deathScreen.innerHTML = '<h1 style="font-size: 64px; margin-bottom: 20px;">WASTED</h1><p style="font-size: 24px;">RESPAWNING IN 3 SECONDS...</p>';
-                document.body.appendChild(deathScreen);
-
-                // Drop camera to floor
-                const floorTween = setInterval(() => {
-                    if (camera.position.y > 0.2) camera.position.y -= 0.05;
-                    else clearInterval(floorTween);
-                }, 16);
-
-                // Respawn logic
-                setTimeout(() => {
-                    isDead = false;
-                    const overlay = document.getElementById('death-overlay');
-                    if (overlay) overlay.remove();
-
-                    playerHealth = 100;
-                    document.getElementById('hp-value').textContent = 100;
-                    document.getElementById('hp-bar').style.width = '100%';
-                    camera.position.set(-17.498, 0.842, 3.014); // original spawn
-                    yaw = 0; pitch = 0;
-
-                    // Refill current weapon ammo
-                    const w = weapons[currentWeaponKey];
-                    if (!w.isMelee) {
-                        w.ammo = w.maxAmmo;
-                        w.reserve = (w.id === 'ak47') ? 90 : 48;
-                    }
-                    updateWeaponUI();
-                    isReloading = false;
-
-                    sendNetworkData({ type: 'respawn', id: peer.id, state: { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: yaw, pitch: pitch, hp: 100 } });
-                }, 3000);
+                if (gameMode === 'duel' && isRoundActive) endRound('enemy');
+                const overlay = document.createElement('div');
+                overlay.id = 'death-overlay';
+                overlay.innerHTML = `<h1>YOU ARE DEAD</h1><p>${gameMode === 'duel' ? 'Waiting for next round...' : 'Respawning in 3s...'}</p>`;
+                document.body.appendChild(overlay);
+                if (gameMode !== 'duel') setTimeout(respawn, 3000);
             }
+        }
+
+        function respawn() {
+            isDead = false;
+            const overlay = document.getElementById('death-overlay');
+            if (overlay) overlay.remove();
+            playerHealth = 100;
+            document.getElementById('hp-value').textContent = 100;
+            document.getElementById('hp-bar').style.width = '100%';
+            camera.position.set(-17.498, 0.842, 3.014);
+            yaw = 0; pitch = 0;
+            const w = weapons[currentWeaponKey];
+            if (!w.isMelee) { w.ammo = w.maxAmmo; w.reserve = (w.id === 'ak47') ? 90 : 48; }
+            updateWeaponUI();
+            sendNetworkData({ type: 'respawn', id: peer.id, state: { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: yaw, pitch: pitch, hp: 100 } });
+        }
+
+        function endRound(winner) {
+            if (!isRoundActive) return;
+            isRoundActive = false;
+
+            if (winner === 'player') playerScore++;
+            else enemyScore++;
+
+            updateScoreUI();
+
+            if (playerScore >= 13 || enemyScore >= 13) {
+                const win = playerScore >= 13;
+                const overlay = document.getElementById('death-overlay') || document.createElement('div');
+                overlay.id = 'death-overlay';
+                overlay.innerHTML = `<h1>MATCH OVER</h1><p>${win ? "YOU WIN THE DUEL!" : "ENEMY WINS THE DUEL!"}</p>`;
+                if (!document.getElementById('death-overlay')) document.body.appendChild(overlay);
+                setTimeout(() => window.location.reload(), 5000);
+                return;
+            }
+
+            setTimeout(() => {
+                currentRound++;
+                isRoundActive = true;
+                updateScoreUI();
+                respawn();
+                // Synchronize new round start
+                sendNetworkData({
+                    type: 'roundStart',
+                    round: currentRound,
+                    pScore: playerScore,
+                    eScore: enemyScore
+                });
+            }, 3000);
         }
 
         // ─── WEAPONS SYSTEM ─────────────────────────────────────────
         const weapons = {
-            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
-            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.025, pos: new THREE.Vector3(0.0210, -0.0160, -0.0320), rot: new THREE.Euler(0.05, 3.38, 0.10), model: null },
-            'awp': { key: 'awp', id: 'awp', name: 'AWP', ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
-            'usp': { key: 'usp', id: 'usp', name: 'USP-S', ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
-            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
-            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
+            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', price: 2700, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
+            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', price: 3100, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.0009, pos: new THREE.Vector3(0.0160, -0.007, -0.0320), rot: new THREE.Euler(0.05, -1.62, 0.10), model: null },
+            'awp': { key: 'awp', id: 'awp', name: 'AWP', price: 4750, ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
+            'usp': { key: 'usp', id: 'usp', name: 'USP-S', price: 200, ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
+            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', price: 700, ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
+            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', price: 0, ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
         };
         let currentWeaponKey = 'ak47';
         let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
@@ -701,6 +967,7 @@
 
         function switchWeapon(key) {
             if (isReloading || !weapons[key] || !weapons[key].model || key === currentWeaponKey) return;
+            isInspecting = false; // Cancel inspection
 
             // Reset scope if switching
             if (isScoped) toggleScope();
@@ -731,7 +998,8 @@
 
         function toggleBuyMenu() {
             buyMenuOpen = !buyMenuOpen;
-            document.getElementById('buy-menu').style.display = buyMenuOpen ? 'block' : 'none';
+            const menu = document.getElementById('buy-menu');
+            menu.style.display = buyMenuOpen ? 'flex' : 'none';
             if (buyMenuOpen) {
                 document.exitPointerLock();
             } else {
@@ -812,10 +1080,6 @@
         let peer = null;
         let connections = []; // For Host: list of all clients. For Client: single connection to host.
         let isHost = false;
-
-        const params = new URLSearchParams(window.location.search);
-        const mode = params.get('mode');
-        const targetHostId = params.get('hostId');
 
         class RemotePlayer {
             constructor(id) {
@@ -929,7 +1193,10 @@
 
             peer.on('open', id => {
                 dbg.textContent = 'NETWORK READY';
-                if (mode === 'host') {
+                if (gameMode === 'duel') {
+                    // duel specific host logic handled via params
+                }
+                if (params.get('mode') === 'host') {
                     isHost = true;
                     document.getElementById('room-id-panel').style.display = 'block';
                     const idVal = document.getElementById('room-id-value');
@@ -939,9 +1206,9 @@
                         idVal.textContent = 'COPIED!';
                         setTimeout(() => idVal.textContent = id, 1000);
                     };
-                } else if (mode === 'join' && targetHostId) {
+                } else if (params.get('mode') === 'join' && params.get('hostId')) {
                     dbg.textContent = 'CONNECTING TO HOST...';
-                    const conn = peer.connect(targetHostId);
+                    const conn = peer.connect(params.get('hostId'));
                     setupConnection(conn);
                 }
             });
@@ -960,104 +1227,63 @@
 
         function setupConnection(conn) {
             console.log('Setting up connection with:', conn.peer);
-
-            // Check for existing connection to this peer to avoid duplicates
-            const existing = connections.find(c => c.peer === conn.peer);
-            if (existing) {
-                console.log('Closing duplicate connection to:', conn.peer);
-                existing.close();
-                connections = connections.filter(c => c !== existing);
-            }
-
             connections.push(conn);
-
-            // For Host: send own ID immediately to let the client know who we are
-            if (isHost) {
-                // Wait a tiny bit for the data channel to be ready on the other side
-                setTimeout(() => {
-                    if (conn.open) {
-                        console.log('HOST SENDING INIT TO:', conn.peer);
-                        conn.send({ type: 'init', id: peer.id });
-                    }
-                }, 500);
-            }
-
             conn.on('open', () => {
-                console.log('Connection OPEN with:', conn.peer);
-                if (!isHost) {
-                    console.log('CLIENT SENDING JOIN TO:', conn.peer);
-                    conn.send({ type: 'join', id: peer.id });
-                }
+                if (!isHost) conn.send({ type: 'join', id: peer.id });
             });
-
-            conn.on('data', data => {
-                handleNetworkMessage(data, conn);
-            });
-
+            conn.on('data', data => handleNetworkMessage(data, conn));
             conn.on('close', () => {
-                console.log('Connection CLOSED with:', conn.peer);
                 removePlayer(conn.peer);
                 connections = connections.filter(c => c !== conn);
-            });
-
-            conn.on('error', err => {
-                console.error('Connection ERROR with:', conn.peer, err);
             });
         }
 
         function handleNetworkMessage(data, conn) {
-            console.log('NET RECV from', conn.peer, ':', data.type, data);
             const senderId = data.id || conn.peer;
-
             switch (data.type) {
-                case 'init':
-                    // Client receives this from Host
-                    console.log('RECEIVED INIT FROM HOST:', senderId);
-                    createRemotePlayer(senderId);
-                    // Reply with join
-                    conn.send({ type: 'join', id: peer.id });
-                    break;
-
                 case 'join':
-                    console.log('RECEIVED JOIN FROM:', senderId);
                     if (isHost) {
-                        // Broadcast new player to others
                         broadcast({ type: 'playerJoined', id: senderId }, conn);
-                        // Tell new player about existing players
-                        remotePlayers.forEach((p, id) => {
-                            if (p instanceof RemotePlayer) {
-                                conn.send({ type: 'playerJoined', id: id });
-                            }
-                        });
+                        remotePlayers.forEach((p, id) => conn.send({ type: 'playerJoined', id: id }));
+                        conn.send({ type: 'roundStart', round: currentRound, pScore: playerScore, eScore: enemyScore });
                     }
                     createRemotePlayer(senderId);
                     break;
-
                 case 'update':
-                    if (isHost) {
-                        // Relay to all other clients
-                        broadcast({ type: 'update', id: data.id, state: data.state }, conn);
-                    }
+                    if (isHost) broadcast({ type: 'update', id: data.id, state: data.state }, conn);
                     const p = remotePlayers.get(data.id);
-                    if (p && p instanceof RemotePlayer) p.updateState(data.state);
+                    if (p) p.updateState(data.state);
                     break;
-
                 case 'hit':
                     if (isHost) {
                         processHit(data.targetId, data.damage);
                     } else if (data.targetId === peer.id) {
-                        // The Host validated a hit on us!
                         damagePlayer(data.damage);
                     }
                     break;
 
                 case 'die':
-                    if (data.id === peer.id) {
-                        // Handled locally
-                    } else {
+                    if (data.id !== peer.id) {
                         const target = remotePlayers.get(data.id);
                         if (target) target.die();
+                        if (gameMode === 'duel' && isRoundActive) {
+                            endRound('player');
+                        }
                     }
+                    break;
+
+                case 'roundStart':
+                    currentRound = data.round;
+                    // Sync scores (Note: Host perspective vs Client perspective)
+                    if (isHost) {
+                        playerScore = data.pScore;
+                        enemyScore = data.eScore;
+                    } else {
+                        playerScore = data.eScore;
+                        enemyScore = data.pScore;
+                    }
+                    updateScoreUI();
+                    respawn();
                     break;
 
                 case 'respawn':
@@ -1150,7 +1376,9 @@
         // ─── SHOOTING & RELOADING ───────────────────────────────────
         let isShooting = false;
         let isReloading = false;
+        let isInspecting = false;
         let lastShootTime = 0;
+        let inspectOffsetY = 0, inspectRotY = 0, inspectRotZ = 0;
 
         window.addEventListener('keydown', e => {
             if (isDead) return;
@@ -1196,6 +1424,7 @@
 
             keys[e.code] = true;
             if (e.code === 'KeyR' && locked) reloadWeapon();
+            if (e.code === 'KeyF' && locked) inspectWeapon();
             if (e.code === 'Digit1' && locked) { activeSlot = 'primary'; switchWeapon(inventory.primary); }
             if (e.code === 'Digit2' && locked) { activeSlot = 'secondary'; switchWeapon(inventory.secondary); }
             if (e.code === 'Digit3' && locked) { activeSlot = 'melee'; switchWeapon(inventory.melee); }
@@ -1227,6 +1456,7 @@
             if (isReloading || w.isMelee || w.ammo === w.maxAmmo || w.reserve === 0) return;
             isReloading = true;
             isShooting = false;
+            isInspecting = false;
 
             let startTime = performance.now();
 
@@ -1264,6 +1494,41 @@
                 }
             }
             requestAnimationFrame(animateReload);
+        }
+
+        function inspectWeapon() {
+            const w = weapons[currentWeaponKey];
+            if (isReloading || isInspecting || isShooting || buyMenuOpen) return;
+            isInspecting = true;
+
+            const startTime = performance.now();
+            function animateInspect() {
+                const now = performance.now();
+                const elapsed = now - startTime;
+
+                if (!isInspecting || isReloading || isShooting || buyMenuOpen) {
+                    isInspecting = false;
+                    inspectOffsetY = 0;
+                    inspectRotY = 0;
+                    inspectRotZ = 0;
+                    return;
+                }
+
+                if (elapsed < 2000) {
+                    const progress = elapsed / 2000;
+                    const sin = Math.sin(progress * Math.PI);
+                    inspectOffsetY = sin * 0.002;
+                    inspectRotY = sin * 0.6;
+                    inspectRotZ = sin * 0.2;
+                    requestAnimationFrame(animateInspect);
+                } else {
+                    isInspecting = false;
+                    inspectOffsetY = 0;
+                    inspectRotY = 0;
+                    inspectRotZ = 0;
+                }
+            }
+            requestAnimationFrame(animateInspect);
         }
 
         // ─── GAME LOOP ──────────────────────────────────────────────
@@ -1379,6 +1644,7 @@
                 // Knives also "shoot" to hit.
                 if (isShooting && !isReloading && now - lastShootTime > w.fireRate) {
                     if (w.isMelee || w.ammo > 0) {
+                        isInspecting = false; // Cancel inspection on shoot
                         if (!w.isMelee) {
                             w.ammo--;
                             updateWeaponUI();
@@ -1407,23 +1673,23 @@
 
                         // Hit registration
                         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-                        // Limit range for knife
-                        const intersects = raycaster.intersectObjects(shootables, true);
+                        // Intersect with collidables (map + players) to prevent wall-hacking
+                        const intersects = raycaster.intersectObjects(collidables, true);
                         if (intersects.length > 0) {
                             if (!w.isMelee || intersects[0].distance < 1.5) {
-                                const hitRoot = intersects[0].object.userData.root;
+                                const hit = intersects[0];
+                                const hitRoot = hit.object.userData.root;
                                 if (hitRoot && hitRoot.userData.isRemotePlayer) {
                                     let actualDamage = w.damage;
 
                                     // Headshot Detection (Models are ~1.7 units tall)
-                                    const hitY = intersects[0].point.y;
+                                    const hitY = hit.point.y;
                                     const playerY = hitRoot.position.y;
                                     const relativeY = hitY - playerY;
 
                                     if (relativeY > 1.35) {
                                         actualDamage = 150; // Guaranteed one-shot
                                         console.log("HEADSHOT!");
-                                        // Visual feedback for headshot could go here
                                     }
 
                                     hitRoot.userData.instance.takeDamage(actualDamage);
@@ -1478,10 +1744,10 @@
                     }
 
                     wModel.position.x += (targetX - wModel.position.x) * 0.2;
-                    wModel.position.y += ((targetY + reloadOffsetY) - wModel.position.y) * 0.2;
+                    wModel.position.y += ((targetY + reloadOffsetY + inspectOffsetY) - wModel.position.y) * 0.2;
 
-                    // Apply base rotation + reload procedural rotation
-                    wModel.rotation.set(wRot.x + reloadRotX, wRot.y, wRot.z);
+                    // Apply base rotation + reload procedural rotation + inspect rotation
+                    wModel.rotation.set(wRot.x + reloadRotX, wRot.y + inspectRotY, wRot.z + inspectRotZ);
                 }
 
                 // Update remote players
