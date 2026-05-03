@@ -296,3 +296,40 @@ footer { animation-delay: 1.1s; }
     padding: 12px 30px;
     font-size: 1rem;
 }
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.mode-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    padding: 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mode-btn:hover {
+    background: rgba(0, 242, 255, 0.1);
+    border-color: var(--primary);
+    transform: translateX(10px);
+}
+
+.mode-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.mode-desc {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
