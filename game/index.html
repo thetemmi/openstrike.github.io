@@ -1254,17 +1254,73 @@
         async function startMatchmaking() {
             for (let i = 1; i <= 20; i++) {
                 const matchId = `open-strike-match-${i}`;
-                dbg.textContent = `SCANNING SECTOR ${i}... [${matchId}]`;
+                dbg.innerHTML = `SCANNING SECTOR ${i}...<br>[${matchId}]`;
                 
                 const result = await new Promise(resolve => {
-                    // 1. Try to HOST
-                    const testPeer = new Peer(matchId);
-                    
-                    testPeer.on('open', () => {
-                        peer = testPeer;
-                        isHost = true;
+                    // 1. Try to JOIN first (concentrate players)
+                    const joinPeer = new Peer();
+                    let hasResolved = false;
+
+                    const cleanup = (res) => {
+                        if (hasResolved) return;
+                        hasResolved = true;
+                        clearTimeout(timeout);
+                        resolve(res);
+                    };
+
+                    const timeout = setTimeout(() => {
+                        dbg.innerHTML += `<br><span style="color:gray">JOIN TIMEOUT</span>`;
+                        joinPeer.destroy();
+                        cleanup('failed-join');
+                    }, 2500);
+
+                    joinPeer.on('open', () => {
+                        const conn = joinPeer.connect(matchId);
                         
-                        // Setup usual host events
+                        conn.on('open', () => {
+                            dbg.innerHTML += `<br><span style="color:green">CONNECTION ESTABLISHED</span>`;
+                            peer = joinPeer;
+                            isHost = false;
+                            setupConnection(conn);
+                            document.getElementById('room-id-panel').style.display = 'block';
+                            document.getElementById('room-id-value').textContent = matchId;
+                            cleanup('joined');
+                        });
+
+                        conn.on('close', () => {
+                            dbg.innerHTML += `<br><span style="color:orange">CONNECTION REJECTED (FULL?)</span>`;
+                            joinPeer.destroy();
+                            cleanup('failed-join');
+                        });
+
+                        conn.on('error', (err) => {
+                            dbg.innerHTML += `<br><span style="color:gray">JOIN ERROR: ${err.type}</span>`;
+                            joinPeer.destroy();
+                            cleanup('failed-join');
+                        });
+                    });
+
+                    joinPeer.on('error', (err) => {
+                        dbg.innerHTML += `<br><span style="color:red">PEER ERROR: ${err.type}</span>`;
+                        cleanup('failed-join');
+                    });
+                });
+
+                if (result === 'joined') {
+                    dbg.textContent = `MATCH DEPLOYED: ${matchId}`;
+                    respawn();
+                    updateScoreUI();
+                    return;
+                }
+
+                // 2. If join failed, try to HOST
+                dbg.innerHTML += `<br>ATTEMPTING TO HOST SECTOR ${i}...`;
+                const hostResult = await new Promise(resolve => {
+                    const hostPeer = new Peer(matchId);
+                    
+                    hostPeer.on('open', () => {
+                        peer = hostPeer;
+                        isHost = true;
                         peer.on('connection', conn => {
                             if (gameMode === 'duel' && connections.length >= 1) {
                                 conn.close();
@@ -1272,68 +1328,27 @@
                             }
                             setupConnection(conn);
                         });
-                        
-                        peer.on('error', err => console.error('Host Peer Error:', err));
-                        
                         document.getElementById('room-id-panel').style.display = 'block';
                         document.getElementById('room-id-value').textContent = matchId;
-                        
                         resolve('hosted');
                     });
-                    
-                    testPeer.on('error', err => {
-                        testPeer.destroy();
-                        if (err.type === 'id-taken') {
-                            // 2. Try to JOIN
-                            const joinPeer = new Peer();
-                            joinPeer.on('open', () => {
-                                const conn = joinPeer.connect(matchId);
-                                
-                                const timeout = setTimeout(() => {
-                                    joinPeer.destroy();
-                                    resolve('failed');
-                                }, 3000);
 
-                                conn.on('open', () => {
-                                    clearTimeout(timeout);
-                                    peer = joinPeer;
-                                    isHost = false;
-                                    setupConnection(conn);
-                                    
-                                    document.getElementById('room-id-panel').style.display = 'block';
-                                    document.getElementById('room-id-value').textContent = matchId;
-                                    
-                                    resolve('joined');
-                                });
-                                
-                                conn.on('close', () => {
-                                    joinPeer.destroy();
-                                    resolve('failed');
-                                });
-
-                                conn.on('error', () => {
-                                    joinPeer.destroy();
-                                    resolve('failed');
-                                });
-                            });
-                            joinPeer.on('error', () => resolve('failed'));
-                        } else {
-                            resolve('failed');
-                        }
+                    hostPeer.on('error', err => {
+                        hostPeer.destroy();
+                        dbg.innerHTML += `<br><span style="color:gray">HOST FAIL: ${err.type}</span>`;
+                        resolve('failed-host');
                     });
                 });
 
-                if (result === 'failed') {
-                    // Short delay to prevent PeerJS from choking on rapid destroy/create
-                    await new Promise(r => setTimeout(r, 200));
-                }
-
-                if (result === 'hosted' || result === 'joined') {
+                if (hostResult === 'hosted') {
                     dbg.textContent = `MATCH DEPLOYED: ${matchId}`;
                     respawn();
                     updateScoreUI();
                     return;
                 }
+
+                // Small delay before next sector
+                await new Promise(r => setTimeout(r, 300));
             }
             
             dbg.innerHTML = '<span style="color:red">MATCHMAKING TIMEOUT. NO SECTORS AVAILABLE.</span>';
