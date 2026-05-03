@@ -750,6 +750,21 @@
         uiSun.position.set(50, 100, 50);
         uiScene.add(uiSun);
 
+        // ─── WEAPONS SYSTEM (MOVED TO TOP FOR INIT) ─────────────────
+        const weapons = {
+            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', price: 2700, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
+            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', price: 3100, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.0009, pos: new THREE.Vector3(0.0160, -0.007, -0.0320), rot: new THREE.Euler(0.05, -1.62, 0.10), model: null },
+            'awp': { key: 'awp', id: 'awp', name: 'AWP', price: 4750, ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
+            'usp': { key: 'usp', id: 'usp', name: 'USP-S', price: 200, ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
+            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', price: 700, ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
+            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', price: 0, ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
+        };
+        const SPAWN_HOST = new THREE.Vector3(-14.81, 0.84, 0.83);
+        const SPAWN_CLIENT = new THREE.Vector3(-17.95, 0.84, 3.90);
+        let currentWeaponKey = 'ak47';
+        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
+        let activeSlot = 'primary';
+
         const canvas = document.getElementById('game-canvas');
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         renderer.setSize(innerWidth, innerHeight);
@@ -940,26 +955,9 @@
             }, 3000);
         }
 
-        // ─── WEAPONS SYSTEM ─────────────────────────────────────────
-        const weapons = {
-            'ak47': { key: 'ak47', id: 'ak47', name: 'AK-47', price: 2700, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 100, damage: 20, isMelee: false, file: '../ak47.glb', scale: 0.005, pos: new THREE.Vector3(0.015, -0.015, -0.040), rot: new THREE.Euler(0.05, (Math.PI / 2) + 0.15, 0.1), model: null },
-            'm4a4': { key: 'm4a4', id: 'm4a4', name: 'M4A4', price: 3100, ammo: 30, maxAmmo: 30, reserve: 90, fireRate: 90, damage: 18, isMelee: false, file: '../m4a4.glb', scale: 0.0009, pos: new THREE.Vector3(0.0160, -0.007, -0.0320), rot: new THREE.Euler(0.05, -1.62, 0.10), model: null },
-            'awp': { key: 'awp', id: 'awp', name: 'AWP', price: 4750, ammo: 10, maxAmmo: 10, reserve: 30, fireRate: 1200, damage: 120, isMelee: false, file: '../awp.glb', scale: 0.02, pos: new THREE.Vector3(0.076, -0.025, -0.2), rot: new THREE.Euler(0, 0, 0), model: null, hasScope: true },
-            'usp': { key: 'usp', id: 'usp', name: 'USP-S', price: 200, ammo: 12, maxAmmo: 12, reserve: 48, fireRate: 250, damage: 15, isMelee: false, file: '../usp.glb', scale: 0.00015, pos: new THREE.Vector3(0.012, -0.012, -0.035), rot: new THREE.Euler(0.02, -Math.PI / 2 + 0.05, 0.05), model: null },
-            'deagle': { key: 'deagle', id: 'deagle', name: 'DEAGLE', price: 700, ammo: 7, maxAmmo: 7, reserve: 35, fireRate: 400, damage: 45, isMelee: false, file: '../deagle.glb', scale: 0.03, pos: new THREE.Vector3(0.0160, -0.0090, -0.0290), rot: new THREE.Euler(0, 3.19, 0), model: null },
-            'knife': { key: 'knife', id: 'knife', name: 'KNIFE', price: 0, ammo: 0, maxAmmo: 0, reserve: 0, fireRate: 500, damage: 55, isMelee: true, file: '../knife.glb', scale: 0.003, pos: new THREE.Vector3(0.015, -0.005, -0.040), rot: new THREE.Euler(0, -Math.PI / 2, -Math.PI / 2), model: null }
-        };
-        // ─── SPAWN POINTS ──────────────────────────────────────────
-        const SPAWN_HOST = new THREE.Vector3(-14.81, 0.84, 0.83);
-        const SPAWN_CLIENT = new THREE.Vector3(-17.95, 0.84, 3.90);
-
         function getSpawn() {
             return isHost ? SPAWN_HOST : SPAWN_CLIENT;
         }
-
-        let currentWeaponKey = 'ak47';
-        let inventory = { primary: 'ak47', secondary: 'usp', melee: 'knife' };
-        let activeSlot = 'primary'; // 'primary', 'secondary', 'melee'
 
         let bobTimer = 0;
         let swayX = 0, swayY = 0;
