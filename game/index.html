@@ -1347,7 +1347,11 @@
                     break;
                 case 'update':
                     if (isHost) broadcast({ type: 'update', id: data.id, state: data.state }, conn);
-                    const p = remotePlayers.get(data.id);
+                    let p = remotePlayers.get(data.id);
+                    if (!p) {
+                        createRemotePlayer(data.id);
+                        p = remotePlayers.get(data.id);
+                    }
                     if (p) p.updateState(data.state);
                     break;
                 case 'hit':
