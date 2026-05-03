@@ -97,6 +97,13 @@ window.addEventListener('mousemove', (e) => {
     mouse.y = (e.clientY / window.innerHeight) - 0.5;
 });
 
+// Load and display Elo
+const menuElo = document.getElementById('menu-elo');
+if (menuElo) {
+    const elo = parseInt(localStorage.getItem('playerElo')) || 1000;
+    menuElo.textContent = elo;
+}
+
 function animate() {
     requestAnimationFrame(animate);
 

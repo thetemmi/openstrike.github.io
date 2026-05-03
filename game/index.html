@@ -915,25 +915,45 @@
                 const win = playerScore >= 13;
                 const overlay = document.getElementById('death-overlay') || document.createElement('div');
                 overlay.id = 'death-overlay';
-                overlay.innerHTML = `<h1>MATCH OVER</h1><p>${win ? "YOU WIN THE DUEL!" : "ENEMY WINS THE DUEL!"}</p>`;
+                
+                // Elo Calculation
+                if (gameMode === 'duel') {
+                    let elo = parseInt(localStorage.getItem('playerElo')) || 1000;
+                    let eloChange = win ? 30 : -50;
+                    elo += eloChange;
+                    if (elo < 0) elo = 0;
+                    localStorage.setItem('playerElo', elo);
+                    
+                    overlay.innerHTML = `<h1>MATCH OVER</h1>
+                        <p>${win ? "VICTORY!" : "DEFEAT!"}</p>
+                        <p style="font-size: 24px; margin-top: 10px; color: ${win ? '#4caf50' : '#f44336'};">
+                            Elo: ${elo} (${win ? '+' : ''}${eloChange})
+                        </p>`;
+                } else {
+                    overlay.innerHTML = `<h1>MATCH OVER</h1><p>${win ? "VICTORY!" : "DEFEAT!"}</p>`;
+                }
+                
                 if (!document.getElementById('death-overlay')) document.body.appendChild(overlay);
-                setTimeout(() => window.location.reload(), 5000);
+                setTimeout(() => window.location.href = '../index.html', 5000); // Redirect to menu
                 return;
             }
 
-            setTimeout(() => {
-                currentRound++;
-                isRoundActive = true;
-                updateScoreUI();
-                respawn();
-                // Synchronize new round start
-                sendNetworkData({
-                    type: 'roundStart',
-                    round: currentRound,
-                    pScore: playerScore,
-                    eScore: enemyScore
-                });
-            }, 3000);
+            // ONLY the host triggers the next round transition
+            if (isHost) {
+                setTimeout(() => {
+                    currentRound++;
+                    isRoundActive = true;
+                    updateScoreUI();
+                    respawn();
+                    // Synchronize new round start
+                    sendNetworkData({
+                        type: 'roundStart',
+                        round: currentRound,
+                        pScore: playerScore,
+                        eScore: enemyScore
+                    });
+                }, 3000);
+            }
         }
 
         // ─── WEAPONS SYSTEM ─────────────────────────────────────────
@@ -1374,6 +1394,7 @@
 
                 case 'roundStart':
                     currentRound = data.round;
+                    isRoundActive = true;
                     // Sync scores (Note: Host perspective vs Client perspective)
                     if (isHost) {
                         playerScore = data.pScore;
