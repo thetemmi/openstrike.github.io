@@ -146,18 +146,21 @@ const infoCloseBtn = document.querySelector('#info-close-btn');
 function showInfoModal(title, message) {
     infoTitle.innerText = title;
     infoMessage.innerText = message;
+    infoModal.hidden = false;
     infoModal.classList.add('active');
 }
 
 if (infoCloseBtn) {
     infoCloseBtn.addEventListener('click', () => {
         infoModal.classList.remove('active');
+        infoModal.hidden = true;
     });
 }
 
 // Main Menu Buttons
 if (playBtn) {
     playBtn.addEventListener('click', () => {
+        playModal.hidden = false;
         playModal.classList.add('active');
     });
 }
@@ -165,6 +168,7 @@ if (playBtn) {
 if (playCancelBtn) {
     playCancelBtn.addEventListener('click', () => {
         playModal.classList.remove('active');
+        playModal.hidden = true;
     });
 }
 
@@ -172,6 +176,8 @@ if (playCancelBtn) {
 if (submenuHostBtn) {
     submenuHostBtn.addEventListener('click', () => {
         playModal.classList.remove('active');
+        playModal.hidden = true;
+        modeModal.hidden = false;
         modeModal.classList.add('active');
     });
 }
@@ -179,6 +185,8 @@ if (submenuHostBtn) {
 if (submenuJoinBtn) {
     submenuJoinBtn.addEventListener('click', () => {
         playModal.classList.remove('active');
+        playModal.hidden = true;
+        joinModal.hidden = false;
         joinModal.classList.add('active');
         setTimeout(() => hostIdInput.focus(), 100);
     });
@@ -193,6 +201,8 @@ if (submenuMatchmakingBtn) {
 if (modeCancelBtn) {
     modeCancelBtn.addEventListener('click', () => {
         modeModal.classList.remove('active');
+        modeModal.hidden = true;
+        playModal.hidden = false;
         playModal.classList.add('active'); // Go back to play menu
     });
 }
@@ -233,6 +243,8 @@ if (exitBtn) {
 if (modalCancelBtn) {
     modalCancelBtn.addEventListener('click', () => {
         joinModal.classList.remove('active');
+        joinModal.hidden = true;
+        playModal.hidden = false;
         playModal.classList.add('active'); // Go back to play menu
         hostIdInput.value = '';
     });
