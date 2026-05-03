@@ -1325,8 +1325,9 @@
                             return;
                         }
                         conn.send({ type: 'accept' });
-                        broadcast({ type: 'playerJoined', id: senderId }, conn);
-                        remotePlayers.forEach((p, id) => conn.send({ type: 'playerJoined', id: id }));
+                        conn.send({ type: 'playerJoined', id: peer.id }); // Tell the new client about the host
+                        broadcast({ type: 'playerJoined', id: senderId }, conn); // Tell others about new client
+                        remotePlayers.forEach((p, id) => conn.send({ type: 'playerJoined', id: id })); // Tell new client about others
                         conn.send({ type: 'roundStart', round: currentRound, pScore: playerScore, eScore: enemyScore });
                     }
                     createRemotePlayer(senderId);
