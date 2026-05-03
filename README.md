@@ -1,4 +1,4 @@
-# Open Strike 🔫
+# Open Strike 
 
 Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Built with **Three.js** for rendering and **PeerJS** for peer-to-peer networking, it offers a fast-paced competitive experience directly in the browser.
 
@@ -6,7 +6,7 @@ Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Bui
 ![Three.js](https://img.shields.io/badge/Engine-Three.js-black?logo=three.js)
 ![PeerJS](https://img.shields.io/badge/Networking-PeerJS-blue)
 
-## 🌟 Features
+## Features
 
 - **Real-time Multiplayer**: P2P connectivity using PeerJS for low-latency gameplay.
 - **Multiple Game Modes**:
@@ -21,7 +21,7 @@ Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Bui
   - Real-time scoreboard and HUD.
   - Responsive design for various screen sizes.
 
-## 🎮 Controls
+## Controls
 
 - **WASD**: Move your character.
 - **SPACE**: Jump.
@@ -29,14 +29,14 @@ Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Bui
 - **LEFT CLICK**: Fire weapon.
 - **ESC**: Release mouse cursor.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: HTML5, Vanilla CSS3, JavaScript (ES6+).
 - **3D Engine**: [Three.js](https://threejs.org/) with GLTF & Draco loaders.
 - **Networking**: [PeerJS](https://peerjs.com/) for WebRTC signaling and data channels.
 - **Development Tooling**: `serve` for local development.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -64,7 +64,7 @@ Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Bui
 4. **Access the game**:
    Open your browser and navigate to `http://localhost:3000` (or the port specified in your terminal).
 
-## 📂 Project Structure
+## Project Structure
 
 - `index.html` & `main.js`: Main menu and lobby logic.
 - `game/`: Core gameplay directory.
@@ -73,7 +73,7 @@ Open Strike is a high-performance, browser-based 3D multiplayer PvP shooter. Bui
   - `style.css`: Gameplay HUD and UI styling.
 - `*.glb`: 3D models for maps, weapons, and characters.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! If you'd like to improve Open Strike, feel free to fork the repository and submit a pull request.
 
