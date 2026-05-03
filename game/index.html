@@ -1288,8 +1288,10 @@
                     probePeer.on('error', err => {
                         clearTimeout(probeTimeout);
                         probePeer.destroy();
-                        if (err.type === 'id-taken') {
+                        // PeerJS v1.5.4 uses 'unavailable-id'; older versions use 'id-taken'
+                        if (err.type === 'unavailable-id' || err.type === 'id-taken') {
                             // Host exists in this sector — we should JOIN
+                            dbg.innerHTML += `<br><span style="color:cyan">HOST DETECTED IN SECTOR ${i}</span>`;
                             resolve('host-exists');
                         } else {
                             dbg.innerHTML += `<br><span style="color:gray">SECTOR ${i} ERROR: ${err.type}</span>`;
